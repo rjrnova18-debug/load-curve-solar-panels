@@ -6,6 +6,7 @@ imported from CSV/XLSX files (see ADR 0002). Custom rule violations raise
 that the frontend translates.
 """
 
+from enum import StrEnum
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -111,3 +112,46 @@ class AnalysisSettings(BaseModel):
 
     daytime_window: DaytimeWindow = DaytimeWindow()
     seasonal_multipliers: SeasonalMultipliers = (1.0,) * MONTHS_PER_YEAR
+
+
+# Highest monthly average of daily irradiation on Earth is around 9 kWh/m2/day.
+MAX_PEAK_SUN_HOURS = 12.0
+
+PeakSunHours = Annotated[float, Field(gt=0, le=MAX_PEAK_SUN_HOURS)]
+
+
+class SolarResource(BaseModel):
+    """The twelve monthly Peak sun hours of one location (index 0 = January)."""
+
+    model_config = ConfigDict(frozen=True)
+
+    peak_sun_hours: Annotated[
+        tuple[PeakSunHours, ...],
+        Field(min_length=MONTHS_PER_YEAR, max_length=MONTHS_PER_YEAR),
+    ]
+
+
+class SystemType(StrEnum):
+    """How a PV system relates to the grid."""
+
+    ON_GRID = "on_grid"
+    HYBRID = "hybrid"
+    OFF_GRID = "off_grid"
+
+
+class SizingAssumptions(BaseModel):
+    """User-editable parameters of the sizing method, with typical defaults."""
+
+    model_config = ConfigDict(frozen=True)
+
+    performance_ratio: float = Field(
+        default=0.75, gt=0, le=1, description="Share of the rated array output that is delivered."
+    )
+    panel_power_w: float = Field(default=550, gt=0, le=1000)
+    battery_depth_of_discharge: float = Field(default=0.8, gt=0, le=1)
+    battery_efficiency: float = Field(default=0.95, gt=0, le=1)
+    inverter_safety_factor: float = Field(default=1.25, ge=1, le=3)
+    days_of_autonomy: float = Field(default=1.0, gt=0, le=7)
+    on_grid_coverage: float = Field(
+        default=1.0, gt=0, le=1, description="Share of annual consumption an on-grid array covers."
+    )
