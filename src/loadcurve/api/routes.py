@@ -13,10 +13,8 @@ import httpx2
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, UploadFile, status
 
 from loadcurve.api.dependencies import get_http_client
-from loadcurve.api.schemas import AnalysisRequest, AnalysisResponse
-from loadcurve.domain.analysis import analyze
 from loadcurve.domain.models import LoadTable
-from loadcurve.domain.sizing import size_systems
+from loadcurve.domain.study import Study, StudyResult, run_study
 from loadcurve.files.load_table_io import (
     FileFormat,
     ImportResult,
@@ -47,9 +45,9 @@ def health() -> dict[str, str]:
 
 
 @router.post("/analysis")
-def run_analysis(request: AnalysisRequest) -> AnalysisResponse:
+def analyse_study(study: Study) -> StudyResult:
     """Analyse a Load table and, if a Solar resource is given, size the three System types."""
-    return evaluate(request)
+    return run_study(study)
 
 
 @router.get("/solar-resource")
@@ -95,17 +93,6 @@ def export_load_table(load_table: LoadTable, fmt: Format = "xlsx") -> Response:
 def load_table_template(fmt: Format = "xlsx") -> Response:
     """Download the sample Load table to fill in."""
     return file_response(template(fmt), "load-table-template", fmt)
-
-
-def evaluate(request: AnalysisRequest) -> AnalysisResponse:
-    """Run the analysis, and the sizing when the request carries a Solar resource."""
-    analysis = analyze(request.load_table, request.settings)
-    sizing = (
-        size_systems(analysis, request.solar_resource, request.assumptions)
-        if request.solar_resource is not None
-        else None
-    )
-    return AnalysisResponse(analysis=analysis, sizing=sizing)
 
 
 def file_response(content: bytes, stem: str, fmt: str) -> Response:
