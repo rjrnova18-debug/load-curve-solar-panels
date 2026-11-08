@@ -70,9 +70,10 @@
   opacity: 0.6;
 }
 
+/* A pale warm halo: sunflower at low opacity turned greyish over the blue sky. */
 .sun__glow {
-  fill: var(--sun);
-  opacity: 0.22;
+  fill: #fff4b8;
+  opacity: 0.45;
 }
 
 .sun__disc {
@@ -127,13 +128,30 @@
 }
 
 .roof-panel {
-  fill: var(--verdigris);
+  fill: var(--primary);
   stroke: var(--surface);
   stroke-width: 0.8;
 }
 
 .ground {
+  fill: var(--meadow);
+}
+
+.ground-edge {
   fill: var(--building);
+}
+
+/* Opacity on the group, fill on the parts: overlapping puffs stay one shape. */
+.cloud {
+  opacity: 0.9;
+}
+
+.cloud > * {
+  fill: var(--cloud);
+}
+
+:root[data-active-theme="dark"] .cloud {
+  opacity: 0.12;
 }
 
 .hit {
@@ -197,19 +215,28 @@
   animation-delay: -40s; /* already crossing the sky when the page opens */
 }
 
+/* The distant airship is smaller, paler and slower: depth without more motion. */
+.airship--far {
+  opacity: 0.75;
+  animation-duration: 260s;
+  animation-delay: -150s;
+}
+
+/* White, softly ribbed airships, as in a bright solarpunk sky. */
 .airship__body {
-  fill: var(--verdigris);
+  fill: var(--cloud);
+  stroke: var(--cloud-shade);
+  stroke-width: 1.2;
 }
 
 .airship__fin {
-  fill: var(--verdigris-strong);
+  fill: var(--cloud-shade);
 }
 
 .airship__band {
   fill: none;
-  stroke: var(--surface);
+  stroke: var(--cloud-shade);
   stroke-width: 1.4;
-  opacity: 0.55;
 }
 
 .airship__garden {
@@ -228,8 +255,8 @@
   fill: var(--sun);
 }
 
-.balloon--verdigris .balloon__envelope {
-  fill: var(--verdigris);
+.balloon--rose .balloon__envelope {
+  fill: var(--rose);
 }
 
 .balloon__stripe {
@@ -241,7 +268,7 @@
   animation: bob 7s ease-in-out infinite alternate;
 }
 
-.balloon--verdigris .bob {
+.balloon--rose .bob {
   animation-duration: 9s;
   animation-delay: -4s;
 }
@@ -297,5 +324,9 @@
   .airship {
     animation: none;
     transform: translateX(860px);
+  }
+
+  .airship--far {
+    transform: translateX(380px);
   }
 }

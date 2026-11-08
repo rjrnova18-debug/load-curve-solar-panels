@@ -119,7 +119,7 @@
   position: absolute;
   inset: auto 0 0;
   height: calc(var(--fill, 0) * 100%);
-  background: var(--verdigris);
+  background: var(--primary);
   transition: height 250ms ease;
 }
 

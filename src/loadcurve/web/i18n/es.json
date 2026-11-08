@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "Curva de carga y dimensionamiento solar",
-    "description": "Estima cuánta energía usa una casa, un negocio o un edificio hora por hora, y dimensiona el sistema solar que podría abastecerlo."
+    "description": "Estima cuánta energía usa una casa, un negocio o un edificio hora por hora, y dimensiona el sistema solar que podría abastecerlo.",
+    "short_title": "Curva de carga"
   },
   "header": {
     "language": "Idioma",

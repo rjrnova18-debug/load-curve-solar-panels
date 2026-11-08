@@ -1,7 +1,8 @@
 {
   "app": {
     "title": "Load Curve & Solar Sizing",
-    "description": "Estimate how much energy a home, business or building uses hour by hour, and size the solar system that could supply it."
+    "description": "Estimate how much energy a home, business or building uses hour by hour, and size the solar system that could supply it.",
+    "short_title": "Load Curve"
   },
   "header": {
     "language": "Language",

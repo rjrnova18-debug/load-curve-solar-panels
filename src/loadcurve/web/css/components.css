@@ -26,6 +26,12 @@
   gap: var(--space-3);
   font-family: var(--font-display);
   font-size: var(--step-1);
+  font-weight: 600;
+}
+
+/* The short name only shows on narrow screens (see the media query below). */
+.brand__short {
+  display: none;
 }
 
 .brand svg {
@@ -49,26 +55,26 @@
   gap: var(--space-2);
   min-height: 2.5rem;
   padding: var(--space-2) var(--space-4);
-  border: 1px solid var(--verdigris);
+  border: 1px solid var(--primary);
   border-radius: var(--radius-control);
   background: transparent;
-  color: var(--verdigris);
+  color: var(--primary);
   font-weight: 600;
   cursor: pointer;
   transition: background-color 150ms ease, color 150ms ease;
 }
 
 .button:hover {
-  background: color-mix(in srgb, var(--verdigris) 12%, transparent);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
 }
 
 .button--primary {
-  background: var(--verdigris);
-  color: var(--on-verdigris);
+  background: var(--primary);
+  color: var(--on-primary);
 }
 
 .button--primary:hover {
-  background: var(--verdigris-strong);
+  background: var(--primary-strong);
 }
 
 .button:disabled {
@@ -96,8 +102,8 @@
 }
 
 .segmented button[aria-pressed="true"] {
-  background: var(--verdigris);
-  color: var(--on-verdigris);
+  background: var(--primary);
+  color: var(--on-primary);
 }
 
 .icon-button {
@@ -191,11 +197,12 @@
   place-items: center;
   width: 2.75rem;
   height: 2.75rem;
-  border: 1px solid var(--verdigris);
+  border: 1px solid var(--primary);
   border-radius: 50%;
-  color: var(--verdigris);
+  color: var(--primary);
   font-family: var(--font-display);
   font-size: var(--step-1);
+  font-weight: 600;
 }
 
 .step__body {
@@ -259,8 +266,12 @@
 }
 
 @media (max-width: 40rem) {
-  .brand span {
-    font-size: var(--step-0);
+  .brand__full {
+    display: none;
+  }
+
+  .brand__short {
+    display: inline;
   }
 
   .step {

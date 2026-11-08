@@ -1,35 +1,38 @@
-/* Design tokens. Light = a hazy verdigris morning; dark = the same city at night.
+/* Design tokens. Light = a bright solarpunk morning (blue sky, meadow green,
+   sunflower and lavender fields); dark = the same town at night.
    Day and night are a semantic pair everywhere: sunflower for daytime hours,
-   dusk violet for night-time hours and batteries. */
+   lavender for night-time hours and batteries. */
 
 :root {
   color-scheme: light;
 
-  --bg: #e9f2ee; /* haze */
-  --surface: #f7fbf8;
-  --surface-sunk: #dde9e3;
-  --ink: #1d3329; /* leaf ink */
-  --muted: #4a6157;
-  --line: #b9cdc4;
-  --verdigris: #2e7466;
-  --verdigris-strong: #235a4f;
-  --on-verdigris: #f7fbf8;
-  --sun: #e8b21c; /* fills: daytime bars, the sun */
-  --sun-ink: #8a6400; /* text and edges on sunflower marks */
-  --sun-tint: #f6e7b8;
-  --dusk: #5d4e9c; /* text and night-time marks */
-  --dusk-fill: #5d4e9c;
-  --dusk-tint: #dcd6ee;
-  --danger: #a3361f;
-  --sky-day-top: #bfe0e6;
-  --sky-day-bottom: #e9f2ee;
-  --sky-night-top: #1b2a4a;
-  --sky-night-bottom: #3e3f6e;
-  --building: #2f5547;
-  --building-lit: #f3c54a;
-  --leaf: #4f9a6a;
+  --bg: #eef6fb; /* morning sky haze */
+  --surface: #ffffff;
+  --surface-sunk: #e1eef7;
+  --ink: #16301f; /* deep leaf */
+  --muted: #46594f;
+  --line: #bfd3df;
+  --primary: #1e7a3a; /* meadow green, darkened for AA text */
+  --primary-strong: #165f2c;
+  --on-primary: #ffffff;
+  --sun: #f5c518; /* fills: daytime bars, the sun */
+  --sun-ink: #7a5800; /* text and edges on sunflower marks */
+  --sun-tint: #fcefb6;
+  --dusk: #5a45c4; /* lavender: night-time text */
+  --dusk-fill: #7e6bd8; /* lavender: night-time marks */
+  --dusk-tint: #e3ddfa;
+  --rose: #c23a62;
+  --danger: #b3261e;
+  --sky-day-top: #3d9be9;
+  --sky-night-top: #1b2560;
+  --building: #3b4753; /* slate grey: buildings, not more meadow */
+  --building-lit: #ffd84d;
+  --leaf: #5dbb3a;
+  --meadow: #4fae3b;
+  --cloud: #fbfcfa;
+  --cloud-shade: #cfdcd5;
 
-  --font-display: "Federo", "Iowan Old Style", Georgia, serif;
+  --font-display: "Fredoka", "Segoe UI", system-ui, sans-serif;
   --font-text: "Atkinson Hyperlegible Next", "Segoe UI", system-ui, sans-serif;
 
   /* Major-third scale (1.25) on a 16px base. */
@@ -57,65 +60,66 @@
 
   --content-width: 75rem;
   --gutter: clamp(1rem, 4vw, 2.5rem);
-  --shadow-raised: 0 1px 0 rgb(29 51 41 / 0.08), 0 8px 24px -12px rgb(29 51 41 / 0.25);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
 
-    --bg: #0f1d18; /* night canopy */
-    --surface: #172a23;
-    --surface-sunk: #12231d;
-    --ink: #e3eee8;
-    --muted: #a3b9af;
-    --line: #2e4a3f;
-    --verdigris: #5fb8a5;
-    --verdigris-strong: #86d0bf;
-    --on-verdigris: #0f1d18;
-    --sun: #f3c54a;
-    --sun-ink: #f3c54a;
-    --sun-tint: #3b3420;
-    --dusk: #a99ae6;
-    --dusk-fill: #7d6cd0;
-    --dusk-tint: #2a2747;
-    --danger: #f08a70;
-    --sky-day-top: #24425a;
-    --sky-day-bottom: #1d3a3a;
-    --sky-night-top: #070d1c;
-    --sky-night-bottom: #141a36;
-    --building: #0b1612;
-    --building-lit: #f3c54a;
-    --leaf: #3f7d57;
-    --shadow-raised: 0 1px 0 rgb(0 0 0 / 0.3), 0 10px 28px -14px rgb(0 0 0 / 0.7);
+    --bg: #0d1830; /* night sky */
+    --surface: #15233f;
+    --surface-sunk: #101d36;
+    --ink: #eaf2fa;
+    --muted: #a9bbd0;
+    --line: #2a3b5c;
+    --primary: #6ccb7e;
+    --primary-strong: #93dca1;
+    --on-primary: #0d1830;
+    --sun: #f7cf3d;
+    --sun-ink: #f7cf3d;
+    --sun-tint: #3a3420;
+    --dusk: #b3a6f5;
+    --dusk-fill: #7e6bd8;
+    --dusk-tint: #2b2852;
+    --rose: #f28aa8;
+    --danger: #ff8a7a;
+    --sky-day-top: #2d5fa8;
+    --sky-night-top: #070e26;
+    --building: #131b26;
+    --building-lit: #ffd84d;
+    --leaf: #3f9b4f;
+    --meadow: #1e5a2e;
+    --cloud: #dfe7f2;
+    --cloud-shade: #8fa0bb;
   }
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #0f1d18;
-  --surface: #172a23;
-  --surface-sunk: #12231d;
-  --ink: #e3eee8;
-  --muted: #a3b9af;
-  --line: #2e4a3f;
-  --verdigris: #5fb8a5;
-  --verdigris-strong: #86d0bf;
-  --on-verdigris: #0f1d18;
-  --sun: #f3c54a;
-  --sun-ink: #f3c54a;
-  --sun-tint: #3b3420;
-  --dusk: #a99ae6;
-  --dusk-fill: #7d6cd0;
-  --dusk-tint: #2a2747;
-  --danger: #f08a70;
-  --sky-day-top: #24425a;
-  --sky-day-bottom: #1d3a3a;
-  --sky-night-top: #070d1c;
-  --sky-night-bottom: #141a36;
-  --building: #0b1612;
-  --building-lit: #f3c54a;
-  --leaf: #3f7d57;
-  --shadow-raised: 0 1px 0 rgb(0 0 0 / 0.3), 0 10px 28px -14px rgb(0 0 0 / 0.7);
+  --bg: #0d1830;
+  --surface: #15233f;
+  --surface-sunk: #101d36;
+  --ink: #eaf2fa;
+  --muted: #a9bbd0;
+  --line: #2a3b5c;
+  --primary: #6ccb7e;
+  --primary-strong: #93dca1;
+  --on-primary: #0d1830;
+  --sun: #f7cf3d;
+  --sun-ink: #f7cf3d;
+  --sun-tint: #3a3420;
+  --dusk: #b3a6f5;
+  --dusk-fill: #7e6bd8;
+  --dusk-tint: #2b2852;
+  --rose: #f28aa8;
+  --danger: #ff8a7a;
+  --sky-day-top: #2d5fa8;
+  --sky-night-top: #070e26;
+  --building: #131b26;
+  --building-lit: #ffd84d;
+  --leaf: #3f9b4f;
+  --meadow: #1e5a2e;
+  --cloud: #dfe7f2;
+  --cloud-shade: #8fa0bb;
 }

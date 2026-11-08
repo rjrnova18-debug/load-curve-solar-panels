@@ -123,9 +123,22 @@ function addBalloon(layer, x, y, variant) {
   svg("rect", { class: "basket", x: -6, y: 20, width: 12, height: 8, rx: 1.5 }, bob);
 }
 
-function addAirship(layer) {
-  const ship = svg("g", { class: "airship" }, layer);
-  const body = svg("g", { transform: "translate(0 78)" }, ship);
+function addCloud(layer, x, y, scale) {
+  const cloud = svg("g", { class: "cloud", transform: `translate(${x} ${y}) scale(${scale})` }, layer);
+  for (const [cx, cy, r] of [
+    [0, 0, 16],
+    [22, -9, 21],
+    [46, -2, 17],
+    [64, 4, 12],
+  ]) {
+    svg("circle", { cx, cy, r }, cloud);
+  }
+  svg("rect", { x: -10, y: 2, width: 84, height: 14, rx: 7 }, cloud);
+}
+
+function addAirship(layer, { y, scale, variant }) {
+  const ship = svg("g", { class: `airship airship--${variant}` }, layer);
+  const body = svg("g", { transform: `translate(0 ${y}) scale(${scale})` }, ship);
   // It drifts to the left, so the tail fins sit on the right.
   svg("path", { class: "airship__fin", d: "M62 -2 L82 -20 L74 0 L82 20 Z" }, body);
   svg("ellipse", { class: "airship__body", cx: 0, cy: 0, rx: 66, ry: 19 }, body);
@@ -185,17 +198,23 @@ export function createHero(root) {
   const sun = svg("g", { class: "sun" }, sky);
   svg("circle", { class: "sun__glow", r: 44 }, sun);
   svg("circle", { class: "sun__disc", r: 22 }, sun);
+  const clouds = svg("g", { class: "clouds" }, sky);
+  addCloud(clouds, 330, 58, 1);
+  addCloud(clouds, 760, 34, 0.75);
+  addCloud(clouds, 520, 120, 0.6);
   svg("rect", { width: WIDTH, height: GROUND, fill: "url(#sky-haze)" }, sky);
 
   const city = svg("g", { "clip-path": "url(#above-ground)" }, sky);
   const buildings = Array.from({ length: HOURS }, (_, hour) => createBuilding(city, hour));
   svg("rect", { class: "ground", x: 0, y: GROUND, width: WIDTH, height: HEIGHT - GROUND }, sky);
+  svg("rect", { class: "ground-edge", x: 0, y: GROUND, width: WIDTH, height: 4 }, sky);
 
   // Flying things go in front of the city, in the sky above the tallest building.
   const ambient = svg("g", { class: "ambient" }, sky);
-  addAirship(ambient);
+  addAirship(ambient, { y: 52, scale: 0.45, variant: "far" });
+  addAirship(ambient, { y: 78, scale: 1, variant: "near" });
   addBalloon(ambient, 205, 118, "sun");
-  addBalloon(ambient, 1010, 92, "verdigris");
+  addBalloon(ambient, 1010, 92, "rose");
   addDrone(ambient);
 
   const hits = Array.from({ length: HOURS }, (_, hour) => {
