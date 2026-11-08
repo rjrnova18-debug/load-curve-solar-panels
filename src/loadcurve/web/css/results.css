@@ -1,0 +1,135 @@
+/* Step 4: consumption results. */
+
+.results {
+  display: grid;
+  /* minmax(0, 1fr): the column takes the available width, not the min-content
+     width of the widest table, so wide tables scroll inside their own box. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+}
+
+.results__year {
+  font-size: var(--step-1);
+}
+
+/* ---------- Stats table ---------- */
+
+.stats {
+  width: 100%;
+}
+
+.stats th,
+.stats td {
+  padding: var(--space-3) var(--space-4);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.stats th[scope="row"],
+.stats thead th:first-child {
+  text-align: left;
+}
+
+.stats thead th {
+  color: var(--muted);
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.stats tbody tr > * {
+  border-top: 1px solid var(--line);
+}
+
+.stats tbody th {
+  font-weight: 700;
+}
+
+/* ---------- Charts ---------- */
+
+.chart {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr); /* a canvas starts 300px wide; don't let it size the column */
+  gap: var(--space-3);
+  margin: 0;
+  min-width: 0;
+}
+
+.chart figcaption {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.chart figcaption p {
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.chart__canvas {
+  position: relative;
+  height: 18rem;
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+}
+
+.chart-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+@media (max-width: 52rem) {
+  .chart-pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------- Heatmap ---------- */
+
+.heatmap {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 2px;
+  padding: var(--space-2);
+}
+
+.heatmap thead th {
+  color: var(--muted);
+  font-size: var(--step--1);
+  font-weight: 700;
+  text-align: center;
+}
+
+.heatmap thead th:first-child {
+  text-align: left;
+}
+
+.heatmap thead th.is-day {
+  color: var(--sun-ink);
+}
+
+.heatmap thead th.is-night {
+  color: var(--dusk);
+}
+
+.heatmap th[scope="row"] {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  padding-right: var(--space-3);
+  background: var(--surface);
+  font-size: var(--step--1);
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+}
+
+/* One hue, more of it for more power: readable by lightness alone. */
+.heatmap td {
+  width: 1.5rem;
+  height: 1.75rem;
+  border-radius: 3px;
+  background: color-mix(in oklab, var(--primary) var(--heat, 0%), var(--surface-sunk));
+}

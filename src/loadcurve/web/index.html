@@ -27,10 +27,13 @@
     <link rel="stylesheet" href="/css/sky.css" />
     <link rel="stylesheet" href="/css/loads.css" />
     <link rel="stylesheet" href="/css/settings.css" />
+    <link rel="stylesheet" href="/css/results.css" />
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='7' fill='%23e8b21c'/%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%232e7466' stroke-width='3' stroke-dasharray='4 3'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='7' fill='%23f5c518'/%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%231e7a3a' stroke-width='3' stroke-dasharray='4 3'/%3E%3C/svg%3E"
     />
+    <!-- Chart.js 4.5.1 (MIT), copied from the npm package after checking its integrity hash. -->
+    <script src="/vendor/chart-4.5.1.umd.min.js" defer></script>
     <script type="module" src="/js/main.js"></script>
   </head>
   <body>
@@ -208,7 +211,45 @@
         <div class="step__body">
           <div class="step__head"><h2 id="results-title" data-i18n="results.title">Your consumption</h2></div>
           <p class="step__lede" data-i18n="results.lede"></p>
-          <div class="empty" data-i18n="results.empty"></div>
+          <div class="empty" data-results-empty data-i18n="results.empty"></div>
+          <div class="results" hidden data-results>
+            <p class="results__year" data-results-year></p>
+            <div class="table-scroll">
+              <table class="stats" data-results-stats></table>
+            </div>
+            <figure class="chart">
+              <figcaption>
+                <h3 data-i18n="results.hourly_title">Power hour by hour</h3>
+                <p data-i18n="results.hourly_caption"></p>
+              </figcaption>
+              <div class="chart__canvas"><canvas role="img" data-chart="hourly"></canvas></div>
+            </figure>
+            <div class="chart-pair">
+              <figure class="chart">
+                <figcaption>
+                  <h3 data-i18n="results.duration_title">Load duration curve</h3>
+                  <p data-i18n="results.duration_caption"></p>
+                </figcaption>
+                <div class="chart__canvas"><canvas role="img" data-chart="duration"></canvas></div>
+              </figure>
+              <figure class="chart">
+                <figcaption>
+                  <h3 data-i18n="results.monthly_title">Energy month by month</h3>
+                  <p data-i18n="results.monthly_caption"></p>
+                </figcaption>
+                <div class="chart__canvas"><canvas role="img" data-chart="monthly"></canvas></div>
+              </figure>
+            </div>
+            <figure class="chart">
+              <figcaption>
+                <h3 data-i18n="results.heatmap_title">Which load uses power when</h3>
+                <p data-i18n="results.heatmap_caption"></p>
+              </figcaption>
+              <div class="table-scroll">
+                <table class="heatmap" data-heatmap></table>
+              </div>
+            </figure>
+          </div>
         </div>
       </section>
 

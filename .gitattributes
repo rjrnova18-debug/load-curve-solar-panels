@@ -7,3 +7,6 @@
 *.jpg binary
 *.ico binary
 *.woff2 binary
+
+# Third-party code copied into the repo (excluded from GitHub language stats)
+src/loadcurve/web/vendor/** linguist-vendored

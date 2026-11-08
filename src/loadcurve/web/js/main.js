@@ -5,6 +5,7 @@ import { initTheme } from "./theme.js";
 import { createHero } from "./views/hero.js";
 import { createLoadTable } from "./views/loadTable.js";
 import { createLocation } from "./views/location.js";
+import { createResults } from "./views/results.js";
 import { createSettings } from "./views/settings.js";
 
 const ANALYSIS_DELAY_MS = 300;
@@ -84,6 +85,7 @@ function wireThemeToggle() {
       "aria-label",
       t(active === "dark" ? "header.theme_to_light" : "header.theme_to_dark"),
     );
+    store.update({}); // charts read their colours from CSS, so they redraw
   });
   button.addEventListener("click", () => theme.toggle());
 }
@@ -94,6 +96,7 @@ async function start() {
   const loadTable = createLoadTable(document.querySelector("#loads"), store);
   const settings = createSettings(document.querySelector("#day"), store);
   const location = createLocation(document.querySelector("#location"), store);
+  const results = createResults(document.querySelector("#results"));
 
   wireLanguageToggle(() => loadTable.retranslate());
   wireThemeToggle();
@@ -104,6 +107,7 @@ async function start() {
     loadTable.render(state);
     settings.render(state);
     location.render(state);
+    results.render(state);
   });
   runAnalysisOnChange();
   store.update({}); // first paint
