@@ -32,6 +32,15 @@ export function initialState() {
     result: null, // last StudyResult from the API
     status: "idle", // "idle" | "loading" | "error"
     error: null, // translated by the views from an error code
+    // Where the Solar resource came from. Not part of the Study the API receives.
+    location: {
+      latitude: null,
+      longitude: null,
+      status: "idle", // "idle" | "locating" | "loading" | "error"
+      error: null,
+      lookup: null, // last PVGIS answer: optimal slope, azimuth, elevation
+      source: null, // "pvgis" | "manual"
+    },
   };
 }
 

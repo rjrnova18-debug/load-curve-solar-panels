@@ -41,11 +41,31 @@
   },
   "day": {
     "title": "Día y temporadas",
-    "lede": "Elige qué horas cuentan como día y cómo cambia el consumo a lo largo del año."
+    "lede": "Elige qué horas cuentan como día y cómo cambia el consumo a lo largo del año.",
+    "start": "El día empieza a las",
+    "end": "El día termina a las",
+    "strip": "Día de {start} a {end}; las demás horas cuentan como noche.",
+    "seasons_title": "Temporadas",
+    "seasons_lede": "100 % es un mes típico. Sube los meses en que usas más energía, por ejemplo 130 % si el aire acondicionado trabaja todo el verano.",
+    "same_for_all": "Poner todos los meses en"
   },
   "location": {
     "title": "Ubicación",
-    "lede": "Consulta cuánto sol recibe tu ubicación o escribe las horas sol pico a mano."
+    "lede": "Consulta cuánto sol recibe tu ubicación o escribe las horas sol pico a mano.",
+    "latitude": "Latitud",
+    "longitude": "Longitud",
+    "lookup": "Consultar horas sol",
+    "use_mine": "Usar mi ubicación",
+    "hint": "En grados decimales, como los muestra un mapa: el sur y el oeste son negativos.",
+    "locating": "Buscando tu ubicación…",
+    "loading": "Consultando a PVGIS las horas sol de esta ubicación…",
+    "retry": "Intentar de nuevo",
+    "manual": "Escribir las horas sol a mano",
+    "same_for_all": "Poner todos los meses en",
+    "hours_unit": "h",
+    "average": "En promedio, {hours} horas sol pico al día.",
+    "from_pvgis": "Datos de PVGIS. Inclinación óptima del panel: {slope}°, azimut {azimuth}° (0° mira al sur, 180° al norte).",
+    "typed_by_hand": "Escritas a mano."
   },
   "results": {
     "title": "Tu consumo",
@@ -103,6 +123,8 @@
     "greater_than_plain": "Escribe un número mayor.",
     "greater_than_equal_plain": "Escribe un número mayor.",
     "less_than_plain": "Escribe un número menor.",
-    "less_than_equal_plain": "Escribe un número menor."
+    "less_than_equal_plain": "Escribe un número menor.",
+    "coordinates_out_of_range": "Escribe una latitud entre -90 y 90 y una longitud entre -180 y 180.",
+    "geolocation_denied": "Tu navegador no compartió tu ubicación. Escribe las coordenadas."
   }
 }

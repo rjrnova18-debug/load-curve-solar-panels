@@ -26,6 +26,7 @@
     <link rel="stylesheet" href="/css/components.css" />
     <link rel="stylesheet" href="/css/sky.css" />
     <link rel="stylesheet" href="/css/loads.css" />
+    <link rel="stylesheet" href="/css/settings.css" />
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='7' fill='%23e8b21c'/%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%232e7466' stroke-width='3' stroke-dasharray='4 3'/%3E%3C/svg%3E"
@@ -134,6 +135,26 @@
         <div class="step__body">
           <div class="step__head"><h2 id="day-title" data-i18n="day.title">Day and seasons</h2></div>
           <p class="step__lede" data-i18n="day.lede"></p>
+          <div class="field-row">
+            <label class="field">
+              <span data-i18n="day.start">Day starts at</span>
+              <select data-day-start></select>
+            </label>
+            <label class="field">
+              <span data-i18n="day.end">Day ends at</span>
+              <select data-day-end></select>
+            </label>
+          </div>
+          <div class="day-strip" role="img" data-day-strip></div>
+          <p class="field-error" role="alert" hidden data-day-error data-i18n="errors.empty_daytime_window"></p>
+          <h3 data-i18n="day.seasons_title">Seasons</h3>
+          <p class="step__lede" data-i18n="day.seasons_lede"></p>
+          <div data-season-grid></div>
+          <label class="field field--inline">
+            <span data-i18n="day.same_for_all">Set every month to</span>
+            <input type="number" min="0" max="300" step="5" inputmode="numeric" data-season-all />
+            <span aria-hidden="true">%</span>
+          </label>
         </div>
       </section>
 
@@ -142,6 +163,42 @@
         <div class="step__body">
           <div class="step__head"><h2 id="location-title" data-i18n="location.title">Location</h2></div>
           <p class="step__lede" data-i18n="location.lede"></p>
+          <div class="field-row">
+            <label class="field">
+              <span data-i18n="location.latitude">Latitude</span>
+              <input type="number" step="any" min="-90" max="90" inputmode="decimal" placeholder="4.711" data-lat />
+            </label>
+            <label class="field">
+              <span data-i18n="location.longitude">Longitude</span>
+              <input type="number" step="any" min="-180" max="180" inputmode="decimal" placeholder="-74.072" data-lon />
+            </label>
+            <button type="button" class="button button--primary" data-action="lookup" data-i18n="location.lookup">
+              Look up sun hours
+            </button>
+            <button type="button" class="button" data-action="geolocate" data-i18n="location.use_mine">
+              Use my location
+            </button>
+          </div>
+          <p class="field-hint" data-i18n="location.hint"></p>
+          <p class="status" role="status" data-location-status></p>
+          <div class="notice notice--actions" role="alert" hidden data-location-alert>
+            <span data-location-alert-text></span>
+            <button type="button" class="button" data-action="retry-lookup" data-i18n="location.retry">Try again</button>
+          </div>
+          <div>
+            <button type="button" class="button" data-action="manual-psh" data-i18n="location.manual">
+              Enter sun hours by hand
+            </button>
+          </div>
+          <div class="psh" hidden data-psh>
+            <p data-psh-summary></p>
+            <div class="month-grid--sun" data-psh-grid></div>
+            <label class="field field--inline">
+              <span data-i18n="location.same_for_all">Set every month to</span>
+              <input type="number" min="0" max="12" step="0.1" inputmode="decimal" data-psh-all />
+              <span aria-hidden="true" data-i18n="location.hours_unit">h</span>
+            </label>
+          </div>
         </div>
       </section>
 

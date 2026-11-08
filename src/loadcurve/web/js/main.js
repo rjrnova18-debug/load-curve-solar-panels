@@ -4,6 +4,8 @@ import { createStore, isAnalysable } from "./state.js";
 import { initTheme } from "./theme.js";
 import { createHero } from "./views/hero.js";
 import { createLoadTable } from "./views/loadTable.js";
+import { createLocation } from "./views/location.js";
+import { createSettings } from "./views/settings.js";
 
 const ANALYSIS_DELAY_MS = 300;
 
@@ -90,6 +92,8 @@ async function start() {
   await setLanguage(pickLanguage(savedLanguage(), navigator.languages));
   const hero = createHero(document.querySelector("#hero"));
   const loadTable = createLoadTable(document.querySelector("#loads"), store);
+  const settings = createSettings(document.querySelector("#day"), store);
+  const location = createLocation(document.querySelector("#location"), store);
 
   wireLanguageToggle(() => loadTable.retranslate());
   wireThemeToggle();
@@ -98,6 +102,8 @@ async function start() {
   store.subscribe((state) => {
     hero.render(state);
     loadTable.render(state);
+    settings.render(state);
+    location.render(state);
   });
   runAnalysisOnChange();
   store.update({}); // first paint

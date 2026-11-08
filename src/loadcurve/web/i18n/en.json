@@ -41,11 +41,31 @@
   },
   "day": {
     "title": "Day and seasons",
-    "lede": "Choose which hours count as day and how consumption changes through the year."
+    "lede": "Choose which hours count as day and how consumption changes through the year.",
+    "start": "Day starts at",
+    "end": "Day ends at",
+    "strip": "Day from {start} to {end}; the other hours count as night.",
+    "seasons_title": "Seasons",
+    "seasons_lede": "100% is a typical month. Raise the months you use more energy, such as 130% when the air conditioning runs all summer.",
+    "same_for_all": "Set every month to"
   },
   "location": {
     "title": "Location",
-    "lede": "Look up how much sun your location gets, or enter peak sun hours by hand."
+    "lede": "Look up how much sun your location gets, or enter peak sun hours by hand.",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "lookup": "Look up sun hours",
+    "use_mine": "Use my location",
+    "hint": "Decimal degrees, as a map shows them: south and west are negative.",
+    "locating": "Finding your location…",
+    "loading": "Asking PVGIS for this location's sun hours…",
+    "retry": "Try again",
+    "manual": "Enter sun hours by hand",
+    "same_for_all": "Set every month to",
+    "hours_unit": "h",
+    "average": "On average, {hours} peak sun hours a day.",
+    "from_pvgis": "From PVGIS. Best panel tilt: {slope}°, azimuth {azimuth}° (0° faces south, 180° faces north).",
+    "typed_by_hand": "Entered by hand."
   },
   "results": {
     "title": "Your consumption",
@@ -103,6 +123,8 @@
     "greater_than_plain": "Enter a larger number.",
     "greater_than_equal_plain": "Enter a larger number.",
     "less_than_plain": "Enter a smaller number.",
-    "less_than_equal_plain": "Enter a smaller number."
+    "less_than_equal_plain": "Enter a smaller number.",
+    "coordinates_out_of_range": "Enter a latitude between -90 and 90 and a longitude between -180 and 180.",
+    "geolocation_denied": "Your browser did not share your location. Type the coordinates instead."
   }
 }

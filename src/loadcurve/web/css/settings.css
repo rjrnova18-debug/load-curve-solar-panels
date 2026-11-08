@@ -1,0 +1,162 @@
+/* Steps 2 and 3: form fields, the day strip and the month grids. */
+
+.field-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-3) var(--space-4);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--step--1);
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.field input,
+.field select {
+  min-width: 9rem;
+  min-height: 2.5rem;
+  padding: 0.375rem 0.625rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--step-0);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.field input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.field--inline {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  justify-self: start;
+}
+
+.field--inline input {
+  min-width: 0;
+  width: 6rem;
+}
+
+.field-hint,
+.status {
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.status:empty {
+  display: none;
+}
+
+.field-error {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.notice--actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+/* 24 cells showing which hours are day and which are night. */
+.day-strip {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  gap: 2px;
+  max-width: 36rem;
+}
+
+.day-strip span {
+  height: 0.75rem;
+  border-radius: 2px;
+}
+
+.day-strip .is-day {
+  background: var(--sun);
+  box-shadow: inset 0 0 0 1px var(--sun-ink);
+}
+
+.day-strip .is-night {
+  background: var(--dusk-fill);
+}
+
+/* ---------- Month grids ---------- */
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--space-2);
+  max-width: 52rem;
+}
+
+.month-grid__cell {
+  display: grid;
+  gap: var(--space-1);
+  justify-items: center;
+}
+
+.month-grid__bar {
+  position: relative;
+  width: 100%;
+  height: 2.5rem;
+  border-radius: 3px;
+  background: var(--surface-sunk);
+  overflow: hidden;
+}
+
+.month-grid__bar::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: calc(var(--fill, 0) * 100%);
+  background: var(--verdigris);
+  transition: height 250ms ease;
+}
+
+.month-grid--sun .month-grid__bar::after {
+  background: var(--sun);
+  box-shadow: inset 0 1px 0 var(--sun-ink);
+}
+
+.month-grid__name {
+  color: var(--muted);
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.month-grid input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.25rem 0.125rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.psh {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (max-width: 40rem) {
+  .month-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .field input,
+  .field select {
+    min-width: 7.5rem;
+  }
+}

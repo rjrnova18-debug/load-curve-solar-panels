@@ -34,6 +34,14 @@ export function formatPercent(fraction, lang) {
   }).format(fraction);
 }
 
+/** Short month names in the user's language: ["Jan", "Feb", ...] or ["ene", "feb", ...]. */
+export function monthNames(lang) {
+  const format = new Intl.DateTimeFormat(LOCALES[lang] ?? lang, { month: "short", timeZone: "UTC" });
+  return Array.from({ length: 12 }, (_, month) =>
+    format.format(new Date(Date.UTC(2025, month, 15))).replace(".", ""),
+  );
+}
+
 /** "06:00" style hour label. */
 export function formatHour(hour) {
   return `${String(hour).padStart(2, "0")}:00`;
