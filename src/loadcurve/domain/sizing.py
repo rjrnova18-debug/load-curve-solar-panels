@@ -122,8 +122,9 @@ def _size_off_grid(
             return math.inf if daily_kwh > 0 else 0.0
         return daily_kwh / (psh * assumptions.performance_ratio)
 
-    # max() keeps the first month on ties, so the result is deterministic.
-    critical = max(analysis.monthly, key=required_kwp)
+    # max() keeps the first month on ties. Rounding first stops float noise (monthly
+    # energy divided back by its days differs by ~1e-15) from breaking a real tie.
+    critical = max(analysis.monthly, key=lambda month: round(required_kwp(month), 9))
     if math.isinf(required_kwp(critical)):
         return None
     array_kwp = required_kwp(critical)

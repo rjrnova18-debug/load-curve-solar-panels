@@ -87,6 +87,19 @@ class TestOffGrid:
         assert off_grid.design_peak_sun_hours == pytest.approx(5)
         assert off_grid.array_power_kwp == pytest.approx(1.5 * DAILY_TO_PRODUCE / (5 * 0.75))
 
+    def test_a_tie_between_all_months_picks_january(self) -> None:
+        # Same sun and same consumption every month: no month is more critical.
+        # A load table with fractional powers makes per-day energies differ only by
+        # float noise once divided back by each month's days.
+        table = LoadTable(
+            loads=[Load(name="Office", rated_power_w=3514.4, usage_factor=0.7, schedule=[1] * 24)]
+        )
+        solar = SolarResource(peak_sun_hours=[4.5] * 12)
+
+        off_grid = size_systems(analyze(table), solar, ASSUMPTIONS).off_grid
+
+        assert off_grid.design_month == 1
+
     def test_with_flat_consumption_the_darkest_month_decides(self) -> None:
         solar = SolarResource(peak_sun_hours=[5, 5, 5, 5, 5, 4, 5, 5, 5, 5, 5, 5])
 
