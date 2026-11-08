@@ -117,7 +117,8 @@ class AnalysisSettings(BaseModel):
 # Highest monthly average of daily irradiation on Earth is around 9 kWh/m2/day.
 MAX_PEAK_SUN_HOURS = 12.0
 
-PeakSunHours = Annotated[float, Field(gt=0, le=MAX_PEAK_SUN_HOURS)]
+# 0 is valid: above the polar circles some winter months get no sun at all.
+PeakSunHours = Annotated[float, Field(ge=0, le=MAX_PEAK_SUN_HOURS)]
 
 
 class SolarResource(BaseModel):
@@ -129,6 +130,16 @@ class SolarResource(BaseModel):
         tuple[PeakSunHours, ...],
         Field(min_length=MONTHS_PER_YEAR, max_length=MONTHS_PER_YEAR),
     ]
+
+    @field_validator("peak_sun_hours")
+    @classmethod
+    def _some_month_has_sun(cls, peak_sun_hours: tuple[float, ...]) -> tuple[float, ...]:
+        if not any(peak_sun_hours):
+            raise PydanticCustomError(
+                "no_solar_resource",
+                "At least one month must have peak sun hours above zero",
+            )
+        return peak_sun_hours
 
 
 class SystemType(StrEnum):

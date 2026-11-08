@@ -101,11 +101,45 @@ class TestOffGrid:
         assert size(settings).off_grid.inverter_power_kw == pytest.approx(1.5 * 1.25)
 
 
+class TestMonthsWithoutSun:
+    # Tromso, Norway (69.6 N), as returned by PVGIS: no sun in December.
+    POLAR = SolarResource(
+        peak_sun_hours=[0.02, 0.97, 2.96, 4.71, 5.1, 4.45, 4.31, 3.66, 2.56, 1.27, 0.12, 0.0]
+    )
+
+    def test_off_grid_is_not_feasible(self) -> None:
+        comparison = size_systems(analyze(CONSTANT_1KW), self.POLAR, ASSUMPTIONS)
+
+        assert comparison.off_grid is None
+
+    def test_grid_connected_systems_still_size_on_the_yearly_average(self) -> None:
+        comparison = size_systems(analyze(CONSTANT_1KW), self.POLAR, ASSUMPTIONS)
+
+        yearly_psh = comparison.on_grid.design_peak_sun_hours
+        assert 0 < yearly_psh < 5
+        assert comparison.on_grid.array_power_kwp == pytest.approx(24 / (yearly_psh * 0.75))
+        assert comparison.hybrid.battery_capacity_kwh > 0
+
+    def test_off_grid_ignores_dark_months_without_consumption(self) -> None:
+        settings = AnalysisSettings(seasonal_multipliers=[1.0] * 11 + [0.0])  # empty in December
+
+        comparison = size_systems(analyze(CONSTANT_1KW, settings), self.POLAR, ASSUMPTIONS)
+
+        assert comparison.off_grid is not None
+        assert comparison.off_grid.design_month == 1  # 0.02 sun hours in January
+
+
 class TestInputValidation:
-    @pytest.mark.parametrize("bad_month", [0.0, -1.0, 13.0])
+    @pytest.mark.parametrize("bad_month", [-1.0, 13.0])
     def test_solar_resource_rejects_impossible_sun_hours(self, bad_month: float) -> None:
         with pytest.raises(ValidationError):
             SolarResource(peak_sun_hours=[bad_month] + [5.0] * 11)
+
+    def test_solar_resource_rejects_a_year_without_sun(self) -> None:
+        with pytest.raises(ValidationError) as excinfo:
+            SolarResource(peak_sun_hours=[0.0] * 12)
+
+        assert excinfo.value.errors()[0]["type"] == "no_solar_resource"
 
     def test_solar_resource_needs_twelve_months(self) -> None:
         with pytest.raises(ValidationError):

@@ -9,6 +9,7 @@ for the same Load analysis so they can be compared side by side:
   the night-time energy of the highest-consumption month.
 * off-grid: the array covers the critical month (highest consumption relative to
   sun); batteries hold a full day of the highest-consumption month per day of autonomy.
+  Not feasible (``None``) when a month with consumption has no sun at all.
 
 Night-time energy passes through the battery, so hybrid and off-grid arrays also
 produce what the battery loses: daytime + night-time / battery efficiency.
@@ -52,7 +53,7 @@ class SizingComparison(BaseModel):
 
     on_grid: SystemSizing
     hybrid: SystemSizing
-    off_grid: SystemSizing
+    off_grid: SystemSizing | None  # None: some month with consumption has no sun
 
 
 def size_systems(
@@ -113,14 +114,18 @@ def _size_hybrid(
 
 def _size_off_grid(
     analysis: LoadAnalysis, solar: SolarResource, assumptions: SizingAssumptions
-) -> SystemSizing:
+) -> SystemSizing | None:
     def required_kwp(month: MonthlyEnergy) -> float:
         daily_kwh = _energy_to_produce_kwh(month, assumptions) / month.days
         psh = solar.peak_sun_hours[month.month - 1]
+        if psh == 0:
+            return math.inf if daily_kwh > 0 else 0.0
         return daily_kwh / (psh * assumptions.performance_ratio)
 
     # max() keeps the first month on ties, so the result is deterministic.
     critical = max(analysis.monthly, key=required_kwp)
+    if math.isinf(required_kwp(critical)):
+        return None
     array_kwp = required_kwp(critical)
     panel_count, installed_kwp = _panels(array_kwp, assumptions)
     busiest_day_kwh = max(month.energy_kwh / month.days for month in analysis.monthly)
