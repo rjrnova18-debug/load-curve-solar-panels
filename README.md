@@ -33,6 +33,4 @@ src/loadcurve/
 ├── api/        FastAPI app and routes
 └── web/        static frontend
 tests/          pytest suite
-docs/adr/       architecture decision records
-GLOSSARY.md     domain vocabulary
 ```
