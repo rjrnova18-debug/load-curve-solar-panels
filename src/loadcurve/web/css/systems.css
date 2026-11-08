@@ -1,0 +1,162 @@
+/* Step 5: the System type comparison, its formulas and the Sizing assumptions. */
+
+.systems {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+}
+
+.systems__verdict {
+  font-size: var(--step-1);
+}
+
+/* ---------- Comparison ---------- */
+
+.comparison {
+  width: 100%;
+}
+
+.comparison th,
+.comparison td {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  vertical-align: top;
+}
+
+.comparison thead th {
+  min-width: 11rem;
+  border-bottom: 2px solid var(--line);
+}
+
+.comparison tbody tr + tr > * {
+  border-top: 1px solid var(--line);
+}
+
+/* Row labels stay visible while the systems scroll sideways on small screens. */
+.comparison tbody th,
+.comparison thead td {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface);
+}
+
+.comparison tbody th {
+  color: var(--muted);
+  font-size: var(--step--1);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.comparison tbody td {
+  font-size: var(--step-1);
+  font-variant-numeric: tabular-nums;
+}
+
+.comparison tbody tr:last-child td {
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.system-name {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 600;
+}
+
+.system-hint {
+  display: block;
+  color: var(--muted);
+  font-size: var(--step--1);
+  font-weight: 400;
+}
+
+/* ---------- Disclosures ---------- */
+
+.formulas,
+.assumptions {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+}
+
+.formulas summary,
+.assumptions summary {
+  padding: var(--space-4) var(--space-5);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.formulas[open] summary,
+.assumptions[open] summary {
+  border-bottom: 1px solid var(--line);
+}
+
+.formulas__intro {
+  padding: var(--space-4) var(--space-5) 0;
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.formulas__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+  padding: var(--space-5);
+}
+
+.formulas__system {
+  display: grid;
+  align-content: start;
+  gap: var(--space-4);
+}
+
+.formulas__system h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  font-weight: 600;
+}
+
+.formula {
+  display: grid;
+  gap: 2px;
+}
+
+.formula__label {
+  color: var(--muted);
+  font-size: var(--step--1);
+  font-weight: 700;
+}
+
+.formula__generic {
+  font-size: var(--step--1);
+}
+
+/* The user's own numbers, set apart so they read as "this is your case". */
+.formula__filled {
+  padding: var(--space-1) var(--space-2);
+  border-left: 3px solid var(--sun);
+  background: var(--surface-sunk);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.assumptions__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+
+.assumptions__grid .field input {
+  min-width: 0;
+  width: 100%;
+}
+
+@media (max-width: 52rem) {
+  .formulas__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

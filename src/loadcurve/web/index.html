@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="/css/loads.css" />
     <link rel="stylesheet" href="/css/settings.css" />
     <link rel="stylesheet" href="/css/results.css" />
+    <link rel="stylesheet" href="/css/systems.css" />
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='7' fill='%23f5c518'/%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%231e7a3a' stroke-width='3' stroke-dasharray='4 3'/%3E%3C/svg%3E"
@@ -258,7 +259,27 @@
         <div class="step__body">
           <div class="step__head"><h2 id="systems-title" data-i18n="systems.title">Solar systems</h2></div>
           <p class="step__lede" data-i18n="systems.lede"></p>
-          <div class="empty" data-i18n="systems.empty"></div>
+          <div class="empty" data-systems-empty data-i18n="systems.empty"></div>
+          <div class="empty" hidden data-systems-need-sun>
+            <p data-i18n="systems.need_sun"></p>
+            <a class="button" href="#location" data-i18n="systems.go_to_location">Go to location</a>
+          </div>
+          <div class="systems" hidden data-systems>
+            <p class="systems__verdict" data-systems-verdict></p>
+            <div class="table-scroll">
+              <table class="comparison" data-systems-table></table>
+            </div>
+            <details class="formulas">
+              <summary data-i18n="systems.how_title">How these numbers are calculated</summary>
+              <p class="formulas__intro" data-i18n="systems.how_intro"></p>
+              <div class="formulas__grid" data-systems-formulas></div>
+            </details>
+            <details class="assumptions">
+              <summary data-i18n="systems.assumptions_title">Change the assumptions</summary>
+              <p class="formulas__intro" data-i18n="systems.assumptions_intro"></p>
+              <div class="assumptions__grid" data-assumptions></div>
+            </details>
+          </div>
         </div>
       </section>
     </main>
