@@ -22,6 +22,7 @@ from loadcurve.files.load_table_io import (
     read_load_table,
     write_load_table,
 )
+from loadcurve.files.report import build_report
 from loadcurve.files.sample import template
 from loadcurve.solar.pvgis import PvgisError, PvgisLookup, fetch_solar_resource
 
@@ -93,6 +94,12 @@ def export_load_table(load_table: LoadTable, fmt: Format = "xlsx") -> Response:
 def load_table_template(fmt: Format = "xlsx") -> Response:
     """Download the sample Load table to fill in."""
     return file_response(template(fmt), "load-table-template", fmt)
+
+
+@router.post("/report")
+def download_report(study: Study) -> Response:
+    """Download the Study and its results as an Excel workbook, one sheet per table."""
+    return file_response(build_report(study, run_study(study)), "load-curve-report", "xlsx")
 
 
 def file_response(content: bytes, stem: str, fmt: str) -> Response:

@@ -99,9 +99,9 @@ def read_load_table(content: bytes, filename: str) -> ImportResult:
     return ImportResult(loads=tuple(loads), issues=tuple(issues))
 
 
-def write_load_table(load_table: LoadTable, fmt: FileFormat) -> bytes:
-    """Serialize a Load table with the canonical English headers."""
-    frame = pd.DataFrame(
+def load_table_frame(load_table: LoadTable) -> pd.DataFrame:
+    """A Load table as a DataFrame with the canonical English headers."""
+    return pd.DataFrame(
         [
             {
                 NAME_COLUMN: load.name,
@@ -113,6 +113,11 @@ def write_load_table(load_table: LoadTable, fmt: FileFormat) -> bytes:
         ],
         columns=list(COLUMNS),
     )
+
+
+def write_load_table(load_table: LoadTable, fmt: FileFormat) -> bytes:
+    """Serialize a Load table with the canonical English headers."""
+    frame = load_table_frame(load_table)
     if fmt == "csv":
         # utf-8-sig adds the byte-order mark Excel needs to show accents correctly.
         return frame.to_csv(index=False, lineterminator="\n").encode("utf-8-sig")

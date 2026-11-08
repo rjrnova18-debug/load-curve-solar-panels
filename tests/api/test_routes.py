@@ -194,6 +194,16 @@ class TestDownloads:
         assert response.headers["content-type"] == XLSX_TYPE
         assert "load-table-template.xlsx" in response.headers["content-disposition"]
 
+    def test_report_is_an_excel_workbook(self, client: TestClient) -> None:
+        payload = {"load_table": SAMPLE_JSON, "solar_resource": {"peak_sun_hours": BOGOTA_PSH}}
+
+        response = client.post("/api/report", json=payload)
+
+        assert response.status_code == 200
+        assert response.headers["content-type"] == XLSX_TYPE
+        assert "load-curve-report.xlsx" in response.headers["content-disposition"]
+        assert response.content.startswith(b"PK")  # XLSX files are ZIP archives
+
     def test_unknown_format_is_rejected(self, client: TestClient) -> None:
         response = client.get("/api/load-table/template", params={"format": "pdf"})
 
