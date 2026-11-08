@@ -22,7 +22,22 @@
     "title": "Tus cargas",
     "lede": "Anota cada equipo, su potencia y las horas en que está encendido.",
     "empty": "Empieza con la oficina de ejemplo o importa tu hoja de cálculo.",
-    "use_sample": "Usar la oficina de ejemplo"
+    "use_sample": "Usar la oficina de ejemplo",
+    "add": "Agregar una carga",
+    "import": "Importar archivo",
+    "template": "Descargar plantilla",
+    "export": "Exportar cargas",
+    "col_name": "Carga",
+    "col_power": "Potencia (W)",
+    "col_use": "Uso %",
+    "remove_column": "Quitar",
+    "remove": "Quitar {name}",
+    "hour_cell": "{name} a las {hour}",
+    "new_name": "Carga {n}",
+    "note": "Haz clic o arrastra sobre las horas en que cada carga está encendida. Uso % es la parte de esas horas en que realmente consume: el compresor de una nevera trabaja cerca del 40 % del tiempo; una lámpara, el 100 %.",
+    "replace_confirm": "¿Reemplazar las cargas actuales por las de este archivo?",
+    "issues_title": "Se omitieron {count} filas. Corrígelas en el archivo e impórtalo de nuevo:",
+    "issue": "Fila {row}, {column}: {message}"
   },
   "day": {
     "title": "Día y temporadas",
@@ -84,6 +99,10 @@
     "location_over_sea": "Ese punto está en el mar. Elige una ubicación en tierra.",
     "invalid_location": "PVGIS no tiene datos para ese punto. Revisa las coordenadas.",
     "pvgis_unavailable": "PVGIS no está respondiendo. Inténtalo de nuevo o escribe las horas sol pico a mano.",
-    "pvgis_unexpected_response": "PVGIS envió datos que esta herramienta no puede leer. Escribe las horas sol pico a mano."
+    "pvgis_unexpected_response": "PVGIS envió datos que esta herramienta no puede leer. Escribe las horas sol pico a mano.",
+    "greater_than_plain": "Escribe un número mayor.",
+    "greater_than_equal_plain": "Escribe un número mayor.",
+    "less_than_plain": "Escribe un número menor.",
+    "less_than_equal_plain": "Escribe un número menor."
   }
 }

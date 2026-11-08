@@ -205,6 +205,12 @@
   align-content: start;
 }
 
+/* Grid items default to min-width: auto, which would let a wide table stretch the
+   page; this keeps wide content scrolling inside its own container. */
+.step__body > * {
+  min-width: 0;
+}
+
 .step__head {
   display: flex;
   flex-wrap: wrap;

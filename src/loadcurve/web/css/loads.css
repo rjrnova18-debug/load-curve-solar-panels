@@ -1,0 +1,193 @@
+/* Step 1: the Load table editor. */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+a.button {
+  text-decoration: none;
+}
+
+.notice {
+  padding: var(--space-3) var(--space-4);
+  border-left: 3px solid var(--danger);
+  border-radius: 0 var(--radius-control) var(--radius-control) 0;
+  background: color-mix(in srgb, var(--danger) 8%, var(--surface));
+}
+
+.notice ul {
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-5);
+}
+
+.table-scroll {
+  /* Positioned so absolutely positioned descendants (visually hidden labels) are
+     clipped by this box instead of widening the whole page. */
+  position: relative;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--surface);
+}
+
+.loads {
+  width: max-content;
+  min-width: 100%;
+}
+
+.loads th,
+.loads td {
+  padding: 0;
+}
+
+.loads thead th {
+  padding: var(--space-3) 0 var(--space-2);
+  color: var(--muted);
+  font-size: var(--step--1);
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.loads thead th.is-day {
+  color: var(--sun-ink);
+}
+
+.loads thead th.is-night {
+  color: var(--dusk);
+}
+
+.loads tbody tr + tr > * {
+  border-top: 1px solid color-mix(in srgb, var(--line) 50%, transparent);
+}
+
+/* The name stays visible while the hours scroll sideways on small screens. */
+.loads .col-name {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  padding-inline: var(--space-2);
+  background: var(--surface);
+  text-align: left;
+}
+
+.loads .col-power,
+.loads .col-use {
+  padding-inline: var(--space-1);
+}
+
+.loads thead .col-power,
+.loads thead .col-use {
+  text-align: right;
+  padding-right: var(--space-3);
+}
+
+.loads input {
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-control);
+  background: transparent;
+  font-variant-numeric: tabular-nums;
+}
+
+.loads input:hover {
+  border-color: var(--line);
+}
+
+.loads input:focus-visible {
+  background: var(--bg);
+}
+
+.loads input[aria-invalid="true"] {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 8%, transparent);
+}
+
+.loads .col-name input {
+  width: 12rem;
+}
+
+.loads .col-power input {
+  width: 5.5rem;
+  text-align: right;
+}
+
+.loads .col-use input {
+  width: 4.25rem;
+  text-align: right;
+}
+
+.loads td.col-hour {
+  padding: 2px 1px;
+}
+
+.hour {
+  display: block;
+  width: 1.5rem;
+  height: 2rem;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: var(--surface-sunk);
+  cursor: pointer;
+  /* Horizontal drags paint; vertical drags still scroll the page. */
+  touch-action: pan-y;
+}
+
+.is-day .hour {
+  background: var(--sun-tint);
+}
+
+.is-night .hour {
+  background: var(--dusk-tint);
+}
+
+.is-day .hour[aria-pressed="true"] {
+  background: var(--sun);
+  box-shadow: inset 0 0 0 1px var(--sun-ink);
+}
+
+.is-night .hour[aria-pressed="true"] {
+  background: var(--dusk-fill);
+}
+
+.hour:focus-visible {
+  outline-offset: 0;
+}
+
+.loads .col-remove {
+  padding-inline: var(--space-2);
+}
+
+.remove {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--step-1);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.remove:hover {
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
+}
+
+.table-note {
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+@media (max-width: 40rem) {
+  .loads .col-name input {
+    width: 8.5rem;
+  }
+}

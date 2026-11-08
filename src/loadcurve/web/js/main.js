@@ -3,6 +3,7 @@ import { language, pickLanguage, savedLanguage, setLanguage, t } from "./i18n.js
 import { createStore, isAnalysable } from "./state.js";
 import { initTheme } from "./theme.js";
 import { createHero } from "./views/hero.js";
+import { createLoadTable } from "./views/loadTable.js";
 
 const ANALYSIS_DELAY_MS = 300;
 
@@ -56,7 +57,7 @@ function wireSampleButton() {
   });
 }
 
-function wireLanguageToggle() {
+function wireLanguageToggle(onChange) {
   const buttons = document.querySelectorAll("[data-language]");
   const markActive = () => {
     for (const button of buttons) {
@@ -67,6 +68,7 @@ function wireLanguageToggle() {
     button.addEventListener("click", async () => {
       await setLanguage(button.dataset.language);
       markActive();
+      onChange();
       store.update({}); // views re-render their dynamic texts in the new language
     });
   }
@@ -86,15 +88,16 @@ function wireThemeToggle() {
 
 async function start() {
   await setLanguage(pickLanguage(savedLanguage(), navigator.languages));
-  wireLanguageToggle();
+  const hero = createHero(document.querySelector("#hero"));
+  const loadTable = createLoadTable(document.querySelector("#loads"), store);
+
+  wireLanguageToggle(() => loadTable.retranslate());
   wireThemeToggle();
   wireSampleButton();
 
-  const hero = createHero(document.querySelector("#hero"));
-  const loadsEmpty = document.querySelector("[data-loads-empty]");
   store.subscribe((state) => {
     hero.render(state);
-    loadsEmpty.hidden = state.study.load_table.loads.length > 0;
+    loadTable.render(state);
   });
   runAnalysisOnChange();
   store.update({}); // first paint

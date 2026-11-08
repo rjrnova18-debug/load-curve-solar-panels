@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import { parseErrorBody } from "../../src/loadcurve/web/js/api.js";
+import { messageKey } from "../../src/loadcurve/web/js/errors.js";
 import { formatEnergy, formatHour, formatPercent, formatPower } from "../../src/loadcurve/web/js/format.js";
 import { pickLanguage, translate } from "../../src/loadcurve/web/js/i18n.js";
 import { createStore, emptyStudy, isAnalysable } from "../../src/loadcurve/web/js/state.js";
@@ -61,6 +62,15 @@ test("API errors become codes: validation type, or detail.code", () => {
   });
   assert.equal(parseErrorBody({}).code, "generic");
   assert.equal(parseErrorBody(null).code, "generic");
+});
+
+test("error messages mention the limit only when it is known", () => {
+  const keys = new Set(["errors.greater_than", "errors.greater_than_plain", "errors.float_parsing"]);
+  const hasKey = (key) => keys.has(key);
+  assert.equal(messageKey("greater_than", { gt: 0 }, hasKey), "errors.greater_than");
+  assert.equal(messageKey("greater_than", {}, hasKey), "errors.greater_than_plain"); // import issues
+  assert.equal(messageKey("float_parsing", {}, hasKey), "errors.float_parsing");
+  assert.equal(messageKey("brand_new_code", {}, hasKey), "errors.generic");
 });
 
 test("an empty study cannot be analysed until it has a load", () => {

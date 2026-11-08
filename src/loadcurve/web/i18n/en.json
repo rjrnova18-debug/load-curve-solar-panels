@@ -22,7 +22,22 @@
     "title": "Your loads",
     "lede": "List each piece of equipment, its power and the hours it is on.",
     "empty": "Start with the sample office or import your spreadsheet.",
-    "use_sample": "Use the sample office"
+    "use_sample": "Use the sample office",
+    "add": "Add a load",
+    "import": "Import file",
+    "template": "Download template",
+    "export": "Export loads",
+    "col_name": "Load",
+    "col_power": "Power (W)",
+    "col_use": "Use %",
+    "remove_column": "Remove",
+    "remove": "Remove {name}",
+    "hour_cell": "{name} at {hour}",
+    "new_name": "Load {n}",
+    "note": "Click or drag across the hours each load is on. Use % is the share of those hours it actually draws power: a fridge compressor runs about 40% of the time, a light 100%.",
+    "replace_confirm": "Replace the current loads with the ones in this file?",
+    "issues_title": "{count} rows were skipped. Fix them in the file and import it again:",
+    "issue": "Row {row}, {column}: {message}"
   },
   "day": {
     "title": "Day and seasons",
@@ -84,6 +99,10 @@
     "location_over_sea": "That point is over the sea. Pick a location on land.",
     "invalid_location": "PVGIS has no data for that point. Check the coordinates.",
     "pvgis_unavailable": "PVGIS is not answering right now. Try again, or enter peak sun hours by hand.",
-    "pvgis_unexpected_response": "PVGIS sent data this tool cannot read. Enter peak sun hours by hand."
+    "pvgis_unexpected_response": "PVGIS sent data this tool cannot read. Enter peak sun hours by hand.",
+    "greater_than_plain": "Enter a larger number.",
+    "greater_than_equal_plain": "Enter a larger number.",
+    "less_than_plain": "Enter a smaller number.",
+    "less_than_equal_plain": "Enter a smaller number."
   }
 }
