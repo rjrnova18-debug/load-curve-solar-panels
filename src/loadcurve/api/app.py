@@ -1,5 +1,6 @@
 """FastAPI application: the JSON API plus the static frontend."""
 
+import mimetypes
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -8,6 +9,12 @@ from fastapi.staticfiles import StaticFiles
 from loadcurve.api.routes import router
 
 WEB_DIR = Path(__file__).resolve().parent.parent / "web"
+
+# Windows registries often map .js to text/plain, and browsers refuse to run ES
+# modules served with that type. Pin the types the frontend relies on.
+mimetypes.add_type("text/javascript", ".js")
+mimetypes.add_type("application/json", ".json")
+mimetypes.add_type("image/svg+xml", ".svg")
 
 
 def create_app() -> FastAPI:

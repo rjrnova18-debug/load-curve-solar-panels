@@ -1,0 +1,82 @@
+{
+  "app": {
+    "title": "Curva de carga y dimensionamiento solar",
+    "description": "Estima cuánta energía usa una casa, un negocio o un edificio hora por hora, y dimensiona el sistema solar que podría abastecerlo."
+  },
+  "header": {
+    "language": "Idioma",
+    "theme_to_dark": "Cambiar al tema de noche",
+    "theme_to_light": "Cambiar al tema de día"
+  },
+  "hero": {
+    "title": "¿Cuánta energía usa tu lugar, y a qué hora?",
+    "empty": "Agrega tus cargas y esta ciudad tomará la forma de tu día."
+  },
+  "loads": {
+    "title": "Tus cargas",
+    "lede": "Anota cada equipo, su potencia y las horas en que está encendido.",
+    "empty": "Empieza con la oficina de ejemplo o importa tu hoja de cálculo."
+  },
+  "day": {
+    "title": "Día y temporadas",
+    "lede": "Elige qué horas cuentan como día y cómo cambia el consumo a lo largo del año."
+  },
+  "location": {
+    "title": "Ubicación",
+    "lede": "Consulta cuánto sol recibe tu ubicación o escribe las horas sol pico a mano."
+  },
+  "results": {
+    "title": "Tu consumo",
+    "lede": "Importa tanto cuándo usas la energía como cuánta: la de la noche tiene que venir de la red o de una batería.",
+    "empty": "Tus gráficas aparecen aquí cuando agregues una carga."
+  },
+  "systems": {
+    "title": "Sistemas solares",
+    "lede": "Sistemas on-grid, híbrido y off-grid dimensionados para tu consumo, lado a lado.",
+    "empty": "Agrega tus cargas y una ubicación para dimensionar los sistemas."
+  },
+  "actions": {
+    "label": "Estudio",
+    "save": "Guardar estudio",
+    "open": "Abrir estudio",
+    "report": "Descargar reporte en Excel",
+    "print": "Imprimir"
+  },
+  "footer": {
+    "data": "Datos solares de PVGIS, Centro Común de Investigación de la Comisión Europea.",
+    "disclaimer": "Son estimaciones: confírmalas con un instalador antes de comprar equipos."
+  },
+  "errors": {
+    "generic": "Algo salió mal. Inténtalo de nuevo.",
+    "network": "El servidor no respondió. Revisa tu conexión e inténtalo de nuevo.",
+    "missing": "Este valor es obligatorio.",
+    "string_too_short": "Escribe un nombre.",
+    "string_too_long": "Usa un nombre más corto (80 caracteres como máximo).",
+    "greater_than": "Escribe un número mayor que {limit}.",
+    "greater_than_equal": "Escribe un número de al menos {limit}.",
+    "less_than": "Escribe un número menor que {limit}.",
+    "less_than_equal": "Escribe un número de como máximo {limit}.",
+    "too_short": "Faltan valores.",
+    "too_long": "Sobran valores.",
+    "literal_error": "Usa 1 para encendido y 0 para apagado.",
+    "float_parsing": "Escribe un número.",
+    "float_type": "Escribe un número.",
+    "int_parsing": "Escribe un número entero.",
+    "int_type": "Escribe un número entero.",
+    "int_from_float": "Escribe un número entero.",
+    "json_invalid": "El archivo del estudio está dañado.",
+    "duplicate_load_name": "Dos cargas tienen el mismo nombre. Dale a cada una un nombre propio.",
+    "empty_daytime_window": "El día tiene que empezar y terminar a horas distintas.",
+    "no_solar_resource": "Al menos un mes necesita horas sol pico mayores que cero.",
+    "unsupported_file_type": "Usa un archivo CSV o de Excel (.xlsx).",
+    "unreadable_file": "No se pudo leer el archivo. Guárdalo de nuevo como CSV o .xlsx y vuelve a intentarlo.",
+    "missing_columns": "Al archivo le faltan estas columnas: {columns}. Descarga la plantilla para ver el formato esperado.",
+    "too_many_rows": "El archivo tiene más de 500 cargas. Divídelo en estudios más pequeños.",
+    "empty_file": "El archivo no tiene cargas.",
+    "file_too_large": "El archivo pesa más de 1 MB.",
+    "location_over_sea": "Ese punto está en el mar. Elige una ubicación en tierra.",
+    "invalid_location": "PVGIS no tiene datos para ese punto. Revisa las coordenadas.",
+    "pvgis_unavailable": "PVGIS no está respondiendo. Inténtalo de nuevo o escribe las horas sol pico a mano.",
+    "pvgis_unexpected_response": "PVGIS envió datos que esta herramienta no puede leer. Escribe las horas sol pico a mano."
+  }
+}

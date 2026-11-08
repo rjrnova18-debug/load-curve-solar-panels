@@ -1,0 +1,82 @@
+{
+  "app": {
+    "title": "Load Curve & Solar Sizing",
+    "description": "Estimate how much energy a home, business or building uses hour by hour, and size the solar system that could supply it."
+  },
+  "header": {
+    "language": "Language",
+    "theme_to_dark": "Switch to the night theme",
+    "theme_to_light": "Switch to the day theme"
+  },
+  "hero": {
+    "title": "How much energy does your place use, and when?",
+    "empty": "Add your loads and this skyline takes the shape of your day."
+  },
+  "loads": {
+    "title": "Your loads",
+    "lede": "List each piece of equipment, its power and the hours it is on.",
+    "empty": "Start with the sample office or import your spreadsheet."
+  },
+  "day": {
+    "title": "Day and seasons",
+    "lede": "Choose which hours count as day and how consumption changes through the year."
+  },
+  "location": {
+    "title": "Location",
+    "lede": "Look up how much sun your location gets, or enter peak sun hours by hand."
+  },
+  "results": {
+    "title": "Your consumption",
+    "lede": "When you use energy matters as much as how much: night-time energy has to come from the grid or a battery.",
+    "empty": "Your charts appear here once you add a load."
+  },
+  "systems": {
+    "title": "Solar systems",
+    "lede": "On-grid, hybrid and off-grid systems sized for your consumption, side by side.",
+    "empty": "Add your loads and a location to size the systems."
+  },
+  "actions": {
+    "label": "Study",
+    "save": "Save study",
+    "open": "Open study",
+    "report": "Download Excel report",
+    "print": "Print"
+  },
+  "footer": {
+    "data": "Solar data from PVGIS, European Commission Joint Research Centre.",
+    "disclaimer": "These are estimates: confirm them with an installer before buying equipment."
+  },
+  "errors": {
+    "generic": "Something went wrong. Try again.",
+    "network": "The server did not answer. Check your connection and try again.",
+    "missing": "This value is required.",
+    "string_too_short": "Enter a name.",
+    "string_too_long": "Use a shorter name (80 characters at most).",
+    "greater_than": "Enter a number above {limit}.",
+    "greater_than_equal": "Enter a number of at least {limit}.",
+    "less_than": "Enter a number below {limit}.",
+    "less_than_equal": "Enter a number of at most {limit}.",
+    "too_short": "Some values are missing.",
+    "too_long": "There are too many values.",
+    "literal_error": "Use 1 for on and 0 for off.",
+    "float_parsing": "Enter a number.",
+    "float_type": "Enter a number.",
+    "int_parsing": "Enter a whole number.",
+    "int_type": "Enter a whole number.",
+    "int_from_float": "Enter a whole number.",
+    "json_invalid": "The study file is damaged.",
+    "duplicate_load_name": "Two loads share this name. Give each load its own name.",
+    "empty_daytime_window": "Day must start and end at different hours.",
+    "no_solar_resource": "At least one month needs sun hours above zero.",
+    "unsupported_file_type": "Use a CSV or Excel (.xlsx) file.",
+    "unreadable_file": "This file could not be read. Save it again as CSV or .xlsx and retry.",
+    "missing_columns": "The file is missing these columns: {columns}. Download the template to see the expected layout.",
+    "too_many_rows": "The file has more than 500 loads. Split it into smaller studies.",
+    "empty_file": "The file has no loads.",
+    "file_too_large": "The file is larger than 1 MB.",
+    "location_over_sea": "That point is over the sea. Pick a location on land.",
+    "invalid_location": "PVGIS has no data for that point. Check the coordinates.",
+    "pvgis_unavailable": "PVGIS is not answering right now. Try again, or enter peak sun hours by hand.",
+    "pvgis_unexpected_response": "PVGIS sent data this tool cannot read. Enter peak sun hours by hand."
+  }
+}

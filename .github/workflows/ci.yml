@@ -31,3 +31,10 @@ jobs:
 
       - name: Test
         run: pytest
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Test frontend modules
+        run: node --test "tests/web/*.test.mjs"
