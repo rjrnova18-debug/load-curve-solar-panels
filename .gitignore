@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Editor
+.vscode/
+
+# Local working files (not part of the project)
+_legacy/
+skills/
+CLAUDE.md
+BITACORA.md
