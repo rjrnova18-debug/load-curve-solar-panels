@@ -1,0 +1,32 @@
+{
+  "inputs": {
+    "location": {"latitude": 4.711, "longitude": -74.072, "elevation": 2555.0},
+    "meteo_data": {"radiation_db": "PVGIS-ERA5", "meteo_db": "ERA5", "year_min": 2005, "year_max": 2023},
+    "mounting_system": {
+      "fixed": {
+        "slope": {"value": 7, "optimal": true},
+        "azimuth": {"value": 14, "optimal": true},
+        "type": "free-standing"
+      }
+    },
+    "pv_module": {"technology": "c-Si", "peak_power": 1.0, "system_loss": 14.0}
+  },
+  "outputs": {
+    "monthly": {
+      "fixed": [
+        {"month": 1, "E_d": 4.03, "E_m": 124.99, "H(i)_d": 5.09, "H(i)_m": 157.73, "SD_m": 9.98},
+        {"month": 2, "E_d": 4.05, "E_m": 113.39, "H(i)_d": 5.12, "H(i)_m": 143.48, "SD_m": 11.42},
+        {"month": 3, "E_d": 3.62, "E_m": 112.09, "H(i)_d": 4.57, "H(i)_m": 141.69, "SD_m": 12.66},
+        {"month": 4, "E_d": 3.31, "E_m": 99.33, "H(i)_d": 4.18, "H(i)_m": 125.28, "SD_m": 6.48},
+        {"month": 5, "E_d": 3.14, "E_m": 97.44, "H(i)_d": 3.95, "H(i)_m": 122.57, "SD_m": 6.15},
+        {"month": 6, "E_d": 3.04, "E_m": 91.19, "H(i)_d": 3.81, "H(i)_m": 114.24, "SD_m": 7.07},
+        {"month": 7, "E_d": 3.1, "E_m": 95.98, "H(i)_d": 3.87, "H(i)_m": 119.94, "SD_m": 7.05},
+        {"month": 8, "E_d": 3.66, "E_m": 113.44, "H(i)_d": 4.57, "H(i)_m": 141.69, "SD_m": 7.41},
+        {"month": 9, "E_d": 4.19, "E_m": 125.64, "H(i)_d": 5.25, "H(i)_m": 157.58, "SD_m": 5.19},
+        {"month": 10, "E_d": 3.84, "E_m": 119.1, "H(i)_d": 4.84, "H(i)_m": 149.98, "SD_m": 5.4},
+        {"month": 11, "E_d": 3.65, "E_m": 109.38, "H(i)_d": 4.6, "H(i)_m": 137.98, "SD_m": 6.83},
+        {"month": 12, "E_d": 3.92, "E_m": 121.62, "H(i)_d": 4.95, "H(i)_m": 153.35, "SD_m": 6.53}
+      ]
+    }
+  }
+}
