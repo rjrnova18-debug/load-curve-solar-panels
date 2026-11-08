@@ -1,0 +1,301 @@
+/* The 24-hour sky hero. All ambient motion on the page lives here, and only here. */
+
+.sky-frame {
+  width: 100%;
+  background: var(--bg);
+}
+
+.sky {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sky-hours {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  padding-block: var(--space-2) var(--space-4);
+  color: var(--muted);
+  font-size: var(--step--1);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.sky-hours span:not(:nth-child(3n + 1)) {
+  visibility: hidden;
+}
+
+@media (max-width: 40rem) {
+  .sky-hours span:not(:nth-child(6n + 1)) {
+    visibility: hidden;
+  }
+}
+
+.hero__summary .is-day {
+  color: var(--sun-ink);
+  font-weight: 700;
+}
+
+.hero__summary .is-night {
+  color: var(--dusk);
+  font-weight: 700;
+}
+
+/* ---------- Sky ---------- */
+
+.sky .star {
+  fill: #f4f1e0;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+
+.sky .star.is-night {
+  opacity: 0.85;
+}
+
+:root[data-active-theme="dark"] .sky .star:not(.is-night) {
+  opacity: 0.25;
+}
+
+.sky .moon {
+  fill: #f1ecd4;
+}
+
+.sun-arc path {
+  fill: none;
+  stroke: var(--sun-ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 2 7;
+  stroke-linecap: round;
+  opacity: 0.6;
+}
+
+.sun__glow {
+  fill: var(--sun);
+  opacity: 0.22;
+}
+
+.sun__disc {
+  fill: var(--sun);
+  stroke: var(--sun-ink);
+  stroke-width: 1.5;
+}
+
+/* ---------- City ---------- */
+
+.rise {
+  transition: transform 450ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sky.is-intro .rise {
+  transition-duration: 1000ms;
+  transition-delay: calc(var(--i) * 28ms);
+}
+
+.sky.is-placeholder .rise {
+  opacity: 0.4;
+}
+
+.building__body {
+  fill: var(--building);
+}
+
+.window {
+  fill: var(--surface);
+  opacity: 0.16;
+  transition:
+    fill 300ms ease,
+    opacity 300ms ease;
+}
+
+.is-night .window {
+  fill: var(--building-lit);
+  opacity: 0.9;
+}
+
+:root[data-active-theme="dark"] .window {
+  fill: var(--building-lit);
+  opacity: 0.3;
+}
+
+:root[data-active-theme="dark"] .is-night .window {
+  opacity: 0.9;
+}
+
+.leaf {
+  fill: var(--leaf);
+}
+
+.roof-panel {
+  fill: var(--verdigris);
+  stroke: var(--surface);
+  stroke-width: 0.8;
+}
+
+.ground {
+  fill: var(--building);
+}
+
+.hit {
+  fill: transparent;
+}
+
+/* ---------- Windmills, airship, balloons, drone ---------- */
+
+.windmill {
+  display: none;
+}
+
+.has-windmill .windmill {
+  display: inline;
+}
+
+.windmill__mast,
+.windmill__blades path,
+.windmill__hub {
+  fill: var(--surface);
+  stroke: var(--building);
+  stroke-width: 1;
+}
+
+:root[data-active-theme="dark"] .windmill__mast,
+:root[data-active-theme="dark"] .windmill__blades path,
+:root[data-active-theme="dark"] .windmill__hub {
+  fill: var(--muted);
+  stroke: var(--bg);
+}
+
+.spin {
+  transform-origin: 0 0;
+  animation: spin 7s linear infinite;
+}
+
+.rigging,
+.drone__arms {
+  fill: none;
+  stroke: var(--building);
+  stroke-width: 1.2;
+}
+
+.drone__arms {
+  stroke-width: 2;
+}
+
+.basket,
+.airship__gondola,
+.drone__body {
+  fill: var(--building);
+}
+
+.drone__rotor {
+  fill: var(--building);
+  opacity: 0.45;
+}
+
+.airship {
+  animation: drift 150s linear infinite;
+  animation-delay: -40s; /* already crossing the sky when the page opens */
+}
+
+.airship__body {
+  fill: var(--verdigris);
+}
+
+.airship__fin {
+  fill: var(--verdigris-strong);
+}
+
+.airship__band {
+  fill: none;
+  stroke: var(--surface);
+  stroke-width: 1.4;
+  opacity: 0.55;
+}
+
+.airship__garden {
+  fill: none;
+  stroke: var(--leaf);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.balloon__envelope {
+  stroke: var(--building);
+  stroke-width: 1;
+}
+
+.balloon--sun .balloon__envelope {
+  fill: var(--sun);
+}
+
+.balloon--verdigris .balloon__envelope {
+  fill: var(--verdigris);
+}
+
+.balloon__stripe {
+  fill: var(--surface);
+  opacity: 0.45;
+}
+
+.bob {
+  animation: bob 7s ease-in-out infinite alternate;
+}
+
+.balloon--verdigris .bob {
+  animation-duration: 9s;
+  animation-delay: -4s;
+}
+
+.hover {
+  animation: hover 6s ease-in-out infinite alternate;
+}
+
+.sky.is-paused * {
+  animation-play-state: paused !important;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(1330px);
+  }
+  to {
+    transform: translateX(-130px);
+  }
+}
+
+@keyframes bob {
+  from {
+    transform: translateY(-5px);
+  }
+  to {
+    transform: translateY(6px);
+  }
+}
+
+@keyframes hover {
+  from {
+    transform: translate(-8px, -3px);
+  }
+  to {
+    transform: translate(8px, 4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin,
+  .bob,
+  .hover {
+    animation: none;
+  }
+
+  .airship {
+    animation: none;
+    transform: translateX(860px);
+  }
+}

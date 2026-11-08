@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
+import { parseErrorBody } from "../../src/loadcurve/web/js/api.js";
 import { formatEnergy, formatHour, formatPercent, formatPower } from "../../src/loadcurve/web/js/format.js";
 import { pickLanguage, translate } from "../../src/loadcurve/web/js/i18n.js";
 import { createStore, emptyStudy, isAnalysable } from "../../src/loadcurve/web/js/state.js";
@@ -44,6 +45,22 @@ test("store notifies subscribers with the merged state", () => {
 
   assert.deepEqual(store.get(), { count: 1, label: "a" });
   assert.equal(seen.length, 1);
+});
+
+test("API errors become codes: validation type, or detail.code", () => {
+  const validation = {
+    detail: [{ type: "greater_than", loc: ["body", "load_table"], ctx: { gt: 0 } }],
+  };
+  assert.deepEqual(parseErrorBody(validation), {
+    code: "greater_than",
+    details: { gt: 0, location: ["body", "load_table"] },
+  });
+  assert.deepEqual(parseErrorBody({ detail: { code: "missing_columns", columns: ["0"] } }), {
+    code: "missing_columns",
+    details: { columns: ["0"] },
+  });
+  assert.equal(parseErrorBody({}).code, "generic");
+  assert.equal(parseErrorBody(null).code, "generic");
 });
 
 test("an empty study cannot be analysed until it has a load", () => {

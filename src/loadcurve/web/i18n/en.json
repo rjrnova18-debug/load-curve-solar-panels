@@ -10,12 +10,19 @@
   },
   "hero": {
     "title": "How much energy does your place use, and when?",
-    "empty": "Add your loads and this skyline takes the shape of your day."
+    "empty": "Add your loads and this skyline takes the shape of your day.",
+    "summary": "{energy} a day: {day} and {night}.",
+    "by_day": "{share} by day",
+    "at_night": "{share} at night",
+    "hour_power": "{hour}: {power}",
+    "aria": "Hourly consumption drawn as a city skyline. Highest {peak} at {peak_hour}, lowest {base} at {base_hour}.",
+    "aria_empty": "An empty city skyline under a 24-hour sky, waiting for your loads."
   },
   "loads": {
     "title": "Your loads",
     "lede": "List each piece of equipment, its power and the hours it is on.",
-    "empty": "Start with the sample office or import your spreadsheet."
+    "empty": "Start with the sample office or import your spreadsheet.",
+    "use_sample": "Use the sample office"
   },
   "day": {
     "title": "Day and seasons",

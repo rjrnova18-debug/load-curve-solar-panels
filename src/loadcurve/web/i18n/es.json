@@ -10,12 +10,19 @@
   },
   "hero": {
     "title": "¿Cuánta energía usa tu lugar, y a qué hora?",
-    "empty": "Agrega tus cargas y esta ciudad tomará la forma de tu día."
+    "empty": "Agrega tus cargas y esta ciudad tomará la forma de tu día.",
+    "summary": "{energy} al día: {day} y {night}.",
+    "by_day": "{share} de día",
+    "at_night": "{share} de noche",
+    "hour_power": "{hour}: {power}",
+    "aria": "Consumo por hora dibujado como el horizonte de una ciudad. Máximo de {peak} a las {peak_hour}, mínimo de {base} a las {base_hour}.",
+    "aria_empty": "El horizonte de una ciudad vacía bajo un cielo de 24 horas, esperando tus cargas."
   },
   "loads": {
     "title": "Tus cargas",
     "lede": "Anota cada equipo, su potencia y las horas en que está encendido.",
-    "empty": "Empieza con la oficina de ejemplo o importa tu hoja de cálculo."
+    "empty": "Empieza con la oficina de ejemplo o importa tu hoja de cálculo.",
+    "use_sample": "Usar la oficina de ejemplo"
   },
   "day": {
     "title": "Día y temporadas",
