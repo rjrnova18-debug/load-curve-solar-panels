@@ -6,7 +6,8 @@ import { parseErrorBody } from "../../src/loadcurve/web/js/api.js";
 import { messageKey } from "../../src/loadcurve/web/js/errors.js";
 import { formatEnergy, formatHour, formatPercent, formatPower } from "../../src/loadcurve/web/js/format.js";
 import { pickLanguage, translate } from "../../src/loadcurve/web/js/i18n.js";
-import { createStore, emptyStudy, isAnalysable } from "../../src/loadcurve/web/js/state.js";
+import { createStore, emptyStudy, initialState, isAnalysable } from "../../src/loadcurve/web/js/state.js";
+import { parseStudyFile, serializeStudy } from "../../src/loadcurve/web/js/studyFile.js";
 import { pickTheme } from "../../src/loadcurve/web/js/theme.js";
 
 test("language: saved choice wins, then the browser, then English", () => {
@@ -79,4 +80,63 @@ test("an empty study cannot be analysed until it has a load", () => {
   study.load_table.loads.push({ name: "Fridge", rated_power_w: 350, schedule: Array(24).fill(1) });
   assert.equal(isAnalysable(study), true);
   assert.equal(study.settings.seasonal_multipliers.length, 12);
+});
+
+// ---------- Study files ----------
+
+function stateWithStudy() {
+  const state = initialState();
+  state.study.load_table.loads.push({
+    name: "Fridge",
+    rated_power_w: 350,
+    usage_factor: 0.4,
+    schedule: Array(24).fill(1),
+  });
+  state.study.solar_resource = { peak_sun_hours: Array(12).fill(4.5) };
+  state.study.assumptions.panel_power_w = 400;
+  state.location = { ...state.location, latitude: 4.711, longitude: -74.072, source: "pvgis" };
+  return state;
+}
+
+test("a saved study opens back unchanged", () => {
+  const state = stateWithStudy();
+
+  const opened = parseStudyFile(serializeStudy(state, new Date("2026-11-08T12:00:00Z")));
+
+  assert.deepEqual(opened.study, state.study);
+  assert.equal(opened.location.latitude, 4.711);
+  assert.equal(opened.location.source, "pvgis");
+  assert.equal(opened.location.status, "idle");
+});
+
+test("missing settings and assumptions fall back to their defaults", () => {
+  const file = JSON.stringify({ format: "load-curve-study", version: 1, study: { load_table: { loads: [] } } });
+
+  const { study, location } = parseStudyFile(file);
+
+  assert.deepEqual(study.settings, emptyStudy().settings);
+  assert.deepEqual(study.assumptions, emptyStudy().assumptions);
+  assert.equal(study.solar_resource, null);
+  assert.equal(location.latitude, null);
+});
+
+test("files that are not study files are rejected with a code", () => {
+  const codeOf = (text) => {
+    try {
+      parseStudyFile(text);
+      return "accepted";
+    } catch (error) {
+      return error.code;
+    }
+  };
+  assert.equal(codeOf("{ not json"), "json_invalid");
+  assert.equal(codeOf(JSON.stringify({ loads: [] })), "study_file_invalid");
+  assert.equal(
+    codeOf(JSON.stringify({ format: "load-curve-study", version: 1, study: { load_table: {} } })),
+    "study_file_invalid",
+  );
+  assert.equal(
+    codeOf(JSON.stringify({ format: "load-curve-study", version: 2, study: { load_table: { loads: [] } } })),
+    "study_file_newer",
+  );
 });

@@ -7,6 +7,7 @@ import { createLoadTable } from "./views/loadTable.js";
 import { createLocation } from "./views/location.js";
 import { createResults } from "./views/results.js";
 import { createSettings } from "./views/settings.js";
+import { createStudyActions } from "./views/studyActions.js";
 import { createSystems } from "./views/systems.js";
 
 const ANALYSIS_DELAY_MS = 300;
@@ -99,6 +100,7 @@ async function start() {
   const location = createLocation(document.querySelector("#location"), store);
   const results = createResults(document.querySelector("#results"));
   const systems = createSystems(document.querySelector("#systems"), store);
+  const studyActions = createStudyActions(document.querySelector(".study-actions"), store);
 
   wireLanguageToggle(() => loadTable.retranslate());
   wireThemeToggle();
@@ -111,6 +113,7 @@ async function start() {
     location.render(state);
     results.render(state);
     systems.render(state);
+    studyActions.render(state);
   });
   runAnalysisOnChange();
   store.update({}); // first paint

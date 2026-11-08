@@ -259,6 +259,11 @@
   padding-block: var(--space-5);
 }
 
+.study-actions__status,
+.study-actions__alert {
+  flex-basis: 100%;
+}
+
 .site-footer {
   padding-block: var(--space-5);
   color: var(--muted);

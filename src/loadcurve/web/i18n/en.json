@@ -155,7 +155,10 @@
     "save": "Save study",
     "open": "Open study",
     "report": "Download Excel report",
-    "print": "Print"
+    "print": "Print",
+    "saved": "Study saved.",
+    "opened": "Opened {name}.",
+    "report_ready": "Report downloaded."
   },
   "footer": {
     "data": "Solar data from PVGIS, European Commission Joint Research Centre.",
@@ -198,6 +201,8 @@
     "less_than_plain": "Enter a smaller number.",
     "less_than_equal_plain": "Enter a smaller number.",
     "coordinates_out_of_range": "Enter a latitude between -90 and 90 and a longitude between -180 and 180.",
-    "geolocation_denied": "Your browser did not share your location. Type the coordinates instead."
+    "geolocation_denied": "Your browser did not share your location. Type the coordinates instead.",
+    "study_file_invalid": "This file is not a study saved by this tool.",
+    "study_file_newer": "This study was saved by a newer version of the tool and cannot be opened here."
   }
 }

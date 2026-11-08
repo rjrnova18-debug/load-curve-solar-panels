@@ -1,0 +1,126 @@
+/* Printed report. Loaded with media="print". Before printing, studyActions.js
+   switches to the light theme and opens every <details>. */
+
+@page {
+  size: A4 landscape; /* the 24-hour tables need the width */
+  margin: 12mm;
+}
+
+:root {
+  print-color-adjust: exact; /* keep day/night cells and the heatmap shading */
+  -webkit-print-color-adjust: exact;
+}
+
+body {
+  background: #fff;
+  font-size: 11pt;
+}
+
+/* Controls do nothing on paper. */
+.header-tools,
+.toolbar,
+.study-actions,
+.empty,
+.field-row button,
+[data-action],
+.field--inline,
+.field-hint,
+.status,
+.table-note,
+.remove,
+.loads .col-remove,
+.assumptions {
+  display: none !important;
+}
+
+.site-header {
+  border-bottom: 1px solid #999;
+}
+
+.wrap {
+  max-width: none;
+  padding-inline: 0;
+}
+
+/* The hero prints as a still picture. */
+.sky * {
+  animation: none !important;
+  transition: none !important;
+}
+
+.airship {
+  transform: translateX(860px);
+}
+
+.airship--far {
+  transform: translateX(380px);
+}
+
+.hero .wrap {
+  padding-block: var(--space-4);
+}
+
+.steps {
+  padding-block: var(--space-4);
+}
+
+.step {
+  padding-bottom: var(--space-5);
+}
+
+/* Wide tables print whole instead of scrolling. */
+.table-scroll {
+  overflow: visible;
+  border-color: #ccc;
+}
+
+.loads input {
+  border: 0;
+  padding: 0.125rem 0.25rem;
+}
+
+.hour {
+  height: 1.25rem;
+}
+
+/* Keep blocks together on one page where possible. */
+.chart,
+.stats,
+.comparison,
+.formulas__system,
+.month-grid {
+  break-inside: avoid;
+}
+
+#results,
+#systems {
+  break-before: page;
+}
+
+.chart__canvas {
+  height: auto;
+}
+
+.chart__canvas canvas {
+  width: 100% !important;
+  height: auto !important;
+}
+
+.formulas,
+.assumptions {
+  border: 0;
+}
+
+.formulas summary {
+  padding-inline: 0;
+  list-style: none;
+}
+
+.formulas__intro,
+.formulas__grid {
+  padding-inline: 0;
+}
+
+.site-footer {
+  border-top: 1px solid #999;
+}

@@ -73,6 +73,19 @@ export function createLocation(root, store) {
 
   lookupButton.addEventListener("click", lookup);
   retryButton.addEventListener("click", lookup);
+  // Typed coordinates belong to the state as soon as the field is left, so a
+  // saved study keeps them even without a PVGIS lookup.
+  for (const [input, key, limit] of [
+    [latInput, "latitude", 90],
+    [lonInput, "longitude", 180],
+  ]) {
+    input.addEventListener("change", () => {
+      const value = Number(input.value);
+      const valid = input.value.trim() !== "" && Number.isFinite(value) && Math.abs(value) <= limit;
+      shownCoordinates.set(input, valid ? value : null);
+      updateLocation({ [key]: valid ? value : null });
+    });
+  }
   for (const input of [latInput, lonInput]) {
     input.addEventListener("keydown", (event) => {
       if (event.key === "Enter") lookup();
@@ -106,16 +119,25 @@ export function createLocation(root, store) {
     sameForAll.value = "";
   });
 
+  const shownCoordinates = new Map([
+    [latInput, null],
+    [lonInput, null],
+  ]);
+
   function render(state) {
     const lang = language();
     const { status: lookupStatus, error, lookup: found, source } = state.location;
     const solar = state.study.solar_resource;
 
+    // Write coordinates only when the state's value changed (an opened study, a
+    // geolocation), so what the user is typing is never overwritten.
     for (const [input, value] of [
       [latInput, state.location.latitude],
       [lonInput, state.location.longitude],
     ]) {
-      if (value !== null && document.activeElement !== input && input.value === "") input.value = String(value);
+      if (shownCoordinates.get(input) === value || document.activeElement === input) continue;
+      shownCoordinates.set(input, value);
+      input.value = value === null ? "" : String(value);
     }
 
     const busy = lookupStatus === "loading" || lookupStatus === "locating";
