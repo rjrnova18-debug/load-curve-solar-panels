@@ -1,6 +1,7 @@
 // Step 5: the three System types side by side, with the formulas behind every
 // number filled in with the user's own values, and the editable Sizing assumptions.
 
+import { expressionMathML, stepMathML, symbolsUsed } from "../formula.js";
 import { formatNumber, monthNames } from "../format.js";
 import { language, t } from "../i18n.js";
 
@@ -66,57 +67,81 @@ function comparisonTable(sizing, lang) {
 
 // ---------- Formulas ----------
 
-/** One formula line: the generic form, then the same with the user's numbers. */
-function formula(label, generic, filled) {
-  return element("div", { class: "formula" }, [
-    element("p", { class: "formula__label" }, [label]),
-    element("p", { class: "formula__generic" }, [generic]),
-    element("p", { class: "formula__filled" }, [filled]),
-  ]);
+// The steps come from the sizing module (domain/calculation.py): this view only
+// draws them, so it cannot show a formula other than the one that was used.
+
+const STEP_TITLES = {
+  array_power: "systems.f_array",
+  panel_count: "systems.f_panels",
+  battery_capacity: "systems.f_battery",
+  inverter_power: "systems.f_inverter",
+};
+
+function stepSentenceKey(quantity, systemName) {
+  if (quantity === "panel_count") return "systems.f_panels_generic";
+  if (quantity === "inverter_power") {
+    return systemName === "on_grid" ? "systems.f_inverter_on_grid" : "systems.f_inverter_load";
+  }
+  return `${STEP_TITLES[quantity]}_${systemName}`;
 }
 
-function formulasFor(name, system, assumptions, lang) {
-  const n = (value, digits = 2) => formatNumber(value, lang, digits);
+/** How symbols and numbers look in the current language. */
+function mathOptions(lang) {
+  const shortMonths = monthNames(lang);
+  return {
+    // No thousands separators: in Spanish "1.000" would read as a decimal in a formula.
+    number: (value) => formatNumber(value, lang, Number.isInteger(value) ? 0 : 2, { grouping: false }),
+    symbol: (key, qualifier) => {
+      const base = t(`symbols.${key}.base`);
+      const parts = [t(`symbols.${key}.sub`)];
+      if (qualifier?.startsWith("month:")) parts.push(shortMonths[Number(qualifier.slice(6)) - 1]);
+      else if (qualifier) parts.push(t(`symbols.qualifier_${qualifier}`));
+      return { base, sub: parts.filter(Boolean).join(",") };
+    },
+  };
+}
+
+function qualifierNote(qualifier, lang) {
+  if (!qualifier) return "";
+  if (qualifier.startsWith("month:")) {
+    return t("symbols.note_month", { month: monthNames(lang, "long")[Number(qualifier.slice(6)) - 1] });
+  }
+  return t(`symbols.note_${qualifier}`);
+}
+
+function math(markup, modifier = "") {
+  const holder = document.createElement("div");
+  holder.className = `formula__math ${modifier}`.trim();
+  holder.innerHTML = markup; // built by formula.js from numbers and escaped text only
+  return holder;
+}
+
+function formulasFor(name, system, lang) {
   const block = element("section", { class: "formulas__system" }, [element("h4", {}, [t(`systems.${name}`)])]);
   if (!system) {
     block.append(element("p", {}, [t("systems.not_feasible")]));
     return block;
   }
-  const pr = assumptions.performance_ratio;
-  const usable = assumptions.battery_depth_of_discharge * assumptions.battery_efficiency;
-  const factor = assumptions.inverter_safety_factor;
-
-  block.append(
-    formula(
-      t("systems.f_array"),
-      t(`systems.f_array_${name}`),
-      `${n(system.design_daily_energy_kwh)} kWh ÷ (${n(system.design_peak_sun_hours)} h × ${n(pr)}) = ${n(system.array_power_kwp)} kWp`,
-    ),
-    formula(
-      t("systems.f_panels"),
-      t("systems.f_panels_generic"),
-      `⌈${n(system.array_power_kwp)} × 1000 ÷ ${n(assumptions.panel_power_w, 0)}⌉ = ${system.panel_count}`,
-    ),
-  );
-  if (system.battery_capacity_kwh > 0) {
-    const stored = system.battery_capacity_kwh * usable;
+  const options = mathOptions(lang);
+  const legend = new Map();
+  for (const calculation of system.steps) {
+    const { symbolic, numeric } = stepMathML(calculation, { ...options, label: t(STEP_TITLES[calculation.quantity]) });
     block.append(
-      formula(
-        t("systems.f_battery"),
-        t(`systems.f_battery_${name}`),
-        `${n(stored)} kWh ÷ (${n(assumptions.battery_depth_of_discharge)} × ${n(assumptions.battery_efficiency)}) = ${n(system.battery_capacity_kwh)} kWh`,
-      ),
+      element("div", { class: "formula" }, [
+        element("p", { class: "formula__label" }, [t(STEP_TITLES[calculation.quantity])]),
+        element("p", { class: "formula__generic" }, [t(stepSentenceKey(calculation.quantity, name))]),
+        math(symbolic),
+        math(numeric, "formula__math--numbers"),
+      ]),
     );
+    for (const used of symbolsUsed(calculation.expression)) legend.set(`${used.key}|${used.qualifier ?? ""}`, used);
   }
-  block.append(
-    name === "on_grid"
-      ? formula(t("systems.f_inverter"), t("systems.f_inverter_on_grid"), `${n(system.inverter_power_kw)} kW`)
-      : formula(
-          t("systems.f_inverter"),
-          t("systems.f_inverter_load"),
-          `${n(system.inverter_power_kw / factor)} kW × ${n(factor)} = ${n(system.inverter_power_kw)} kW`,
-        ),
-  );
+  const items = [...legend.values()].map(({ key, qualifier }) => {
+    const symbolHolder = math(`<math>${expressionMathML({ kind: "value", symbol: key, qualifier, value: 0, unit: "" }, { ...options, numbers: false })}</math>`);
+    const note = qualifierNote(qualifier, lang);
+    return element("li", {}, [symbolHolder, `${t(`symbols.${key}.name`)}${note ? ` (${note})` : ""}`]);
+  });
+  block.append(element("ul", { class: "formula-legend", "aria-label": t("systems.legend") }, items));
   return block;
 }
 
@@ -180,7 +205,7 @@ export function createSystems(root, store) {
 
     table.replaceChildren(...comparisonTable(sizing, lang));
     formulas.replaceChildren(
-      ...SYSTEMS.map((name) => formulasFor(name, sizing[name], state.study.assumptions, lang)),
+      ...SYSTEMS.map((name) => formulasFor(name, sizing[name], lang)),
     );
     const hybridBattery = sizing.hybrid.battery_capacity_kwh;
     verdict.textContent = sizing.off_grid

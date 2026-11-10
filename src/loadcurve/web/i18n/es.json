@@ -142,14 +142,15 @@
     "f_battery_off_grid": "Energía diaria del mes de mayor consumo × días de autonomía ÷ (profundidad de descarga × eficiencia de la batería).",
     "f_inverter": "Potencia del inversor",
     "f_inverter_on_grid": "La potencia instalada de los paneles: la red atiende los picos de tus cargas.",
-    "f_inverter_load": "Potencia horaria máxima del año × factor de seguridad.",
+    "f_inverter_load": "Potencia horaria máxima × el multiplicador de temporada más alto × factor de seguridad.",
     "a_performance_ratio": "Rendimiento del sistema (%)",
     "a_panel_power_w": "Potencia de un panel (W)",
     "a_battery_depth_of_discharge": "Profundidad de descarga de la batería (%)",
     "a_battery_efficiency": "Eficiencia de la batería (%)",
     "a_inverter_safety_factor": "Factor de seguridad del inversor",
     "a_days_of_autonomy": "Días de autonomía (off-grid)",
-    "a_on_grid_coverage": "Cobertura on-grid (%)"
+    "a_on_grid_coverage": "Cobertura on-grid (%)",
+    "legend": "Símbolos"
   },
   "actions": {
     "label": "Estudio",
@@ -206,5 +207,97 @@
     "study_file_invalid": "Este archivo no es un estudio guardado con esta herramienta.",
     "study_file_newer": "Este estudio se guardó con una versión más nueva de la herramienta y no se puede abrir aquí.",
     "pvgis_cannot_compute": "PVGIS no pudo calcular este punto. Prueba un punto a unos kilómetros o escribe las horas sol a mano."
+  },
+  "symbols": {
+    "daily_energy": {
+      "base": "E",
+      "sub": "",
+      "name": "energía por día"
+    },
+    "daytime_energy": {
+      "base": "E",
+      "sub": "día",
+      "name": "energía de día, por día"
+    },
+    "nighttime_energy": {
+      "base": "E",
+      "sub": "noche",
+      "name": "energía de noche, por día"
+    },
+    "coverage": {
+      "base": "c",
+      "sub": "",
+      "name": "cobertura on-grid"
+    },
+    "peak_sun_hours": {
+      "base": "HSP",
+      "sub": "",
+      "name": "horas sol pico"
+    },
+    "performance_ratio": {
+      "base": "PR",
+      "sub": "",
+      "name": "rendimiento del sistema"
+    },
+    "battery_efficiency": {
+      "base": "η",
+      "sub": "",
+      "name": "eficiencia de la batería"
+    },
+    "depth_of_discharge": {
+      "base": "DoD",
+      "sub": "",
+      "name": "profundidad de descarga de la batería"
+    },
+    "days_of_autonomy": {
+      "base": "n",
+      "sub": "aut",
+      "name": "días de autonomía"
+    },
+    "array_power": {
+      "base": "P",
+      "sub": "paneles",
+      "name": "potencia de los paneles"
+    },
+    "panel_power": {
+      "base": "P",
+      "sub": "panel",
+      "name": "potencia de un panel"
+    },
+    "panel_count": {
+      "base": "N",
+      "sub": "paneles",
+      "name": "número de paneles"
+    },
+    "battery_capacity": {
+      "base": "C",
+      "sub": "bat",
+      "name": "capacidad de las baterías"
+    },
+    "inverter_power": {
+      "base": "P",
+      "sub": "inv",
+      "name": "potencia del inversor"
+    },
+    "peak_power": {
+      "base": "P",
+      "sub": "pico",
+      "name": "potencia horaria máxima"
+    },
+    "seasonal_multiplier": {
+      "base": "k",
+      "sub": "temp",
+      "name": "multiplicador de temporada"
+    },
+    "inverter_safety_factor": {
+      "base": "f",
+      "sub": "",
+      "name": "factor de seguridad del inversor"
+    },
+    "qualifier_year": "año",
+    "qualifier_max": "máx",
+    "note_year": "promedio del año",
+    "note_max": "el mes más alto",
+    "note_month": "en {month}, el mes crítico"
   }
 }

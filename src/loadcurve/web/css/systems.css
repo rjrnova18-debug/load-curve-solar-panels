@@ -99,17 +99,30 @@
   font-size: var(--step--1);
 }
 
+/* Systems stacked; inside each, its formulas share the width so fractions fit. */
 .formulas__grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--space-5);
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
   padding: var(--space-5);
 }
 
 .formulas__system {
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr));
   align-content: start;
-  gap: var(--space-4);
+  gap: var(--space-4) var(--space-6);
+}
+
+.formulas__system + .formulas__system {
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--line);
+}
+
+.formulas__system > h4,
+.formulas__system > p,
+.formulas__system > .formula-legend {
+  grid-column: 1 / -1;
 }
 
 .formulas__system h4 {
@@ -134,13 +147,51 @@
   font-size: var(--step--1);
 }
 
+/* Formulas are MathML: real fractions, drawn by the browser. Left-aligned, and
+   scrolling sideways on narrow screens rather than overflowing. */
+.formula__math {
+  overflow-x: auto;
+  padding: var(--space-1) 0;
+}
+
+/* Inline math keeps formulas left-aligned; math-style: normal keeps fractions
+   full size, as in display mode. */
+.formula__math math {
+  display: inline math;
+  math-style: normal;
+  font-size: 1.2em;
+  color: var(--ink);
+}
+
 /* The user's own numbers, set apart so they read as "this is your case". */
-.formula__filled {
-  padding: var(--space-1) var(--space-2);
+.formula__math--numbers {
+  padding: var(--space-2);
   border-left: 3px solid var(--sun);
   background: var(--surface-sunk);
-  font-variant-numeric: tabular-nums;
-  overflow-wrap: anywhere;
+}
+
+.formula-legend {
+  display: grid;
+  gap: var(--space-1);
+  margin: var(--space-2) 0 0;
+  padding: var(--space-3) 0 0;
+  border-top: 1px solid var(--line);
+  list-style: none;
+  color: var(--muted);
+  font-size: var(--step--1);
+}
+
+.formula-legend li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.formula-legend .formula__math {
+  flex: none;
+  min-width: 4.5rem;
+  padding: 0;
+  overflow: visible;
 }
 
 .assumptions__grid {
@@ -155,8 +206,16 @@
   width: 100%;
 }
 
-@media (max-width: 52rem) {
+@media (max-width: 40rem) {
   .formulas__grid {
-    grid-template-columns: minmax(0, 1fr);
+    padding: var(--space-4);
+  }
+
+  .formula__math math {
+    font-size: 0.88em;
+  }
+
+  .formula__math--numbers {
+    padding: var(--space-1) var(--space-2);
   }
 }

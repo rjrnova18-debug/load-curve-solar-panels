@@ -6,6 +6,7 @@ import { test } from "node:test";
 import { parseErrorBody } from "../../src/loadcurve/web/js/api.js";
 import { daytimeHours, isDaytime, nighttimeHours } from "../../src/loadcurve/web/js/daytime.js";
 import { messageKey } from "../../src/loadcurve/web/js/errors.js";
+import { expressionMathML, stepMathML, symbolsUsed } from "../../src/loadcurve/web/js/formula.js";
 import { formatEnergy, formatHour, formatPercent, formatPower } from "../../src/loadcurve/web/js/format.js";
 import { pickLanguage, translate } from "../../src/loadcurve/web/js/i18n.js";
 import { createStore, emptyStudy, initialState, isAnalysable } from "../../src/loadcurve/web/js/state.js";
@@ -159,3 +160,56 @@ for (const { start, end, daytime, nighttime } of DAYTIME_CASES) {
     }
   });
 }
+
+// ---------- Formulas (MathML from the sizing module's expression trees) ----------
+
+const v = (symbol, value, unit = "", qualifier = null) => ({ kind: "value", symbol, qualifier, value, unit });
+const ARRAY_EXPRESSION = {
+  kind: "fraction",
+  numerator: {
+    kind: "sum",
+    terms: [v("daytime_energy", 87.62, "kWh"), { kind: "fraction", numerator: v("nighttime_energy", 65.04, "kWh"), denominator: v("battery_efficiency", 0.95) }],
+  },
+  denominator: { kind: "product", terms: [v("peak_sun_hours", 4.5, "h", "year"), v("performance_ratio", 0.75)] },
+};
+const MATH_OPTIONS = {
+  symbol: (key, qualifier) => ({ base: key.slice(0, 1).toUpperCase(), sub: qualifier ?? "" }),
+  number: (value) => String(value),
+};
+
+test("formulas draw fractions, subscripts and units", () => {
+  const symbolic = expressionMathML(ARRAY_EXPRESSION, { ...MATH_OPTIONS, numbers: false });
+  const numeric = expressionMathML(ARRAY_EXPRESSION, { ...MATH_OPTIONS, numbers: true });
+
+  assert.equal((symbolic.match(/<mfrac>/g) ?? []).length, 2);
+  assert.match(symbolic, /<msub><mi>P<\/mi><mtext>year<\/mtext><\/msub>/);
+  assert.match(numeric, /<mn>87\.62<\/mn><mspace width="0.2em"><\/mspace><mtext>kWh<\/mtext>/);
+  assert.doesNotMatch(numeric, /<msub>/);
+});
+
+test("a sum inside a product gets parentheses; constants stay numbers", () => {
+  const expression = {
+    kind: "product",
+    terms: [{ kind: "sum", terms: [v("a", 1), v("b", 2)] }, { kind: "value", symbol: null, qualifier: null, value: 1000, unit: "" }],
+  };
+  const markup = expressionMathML(expression, { ...MATH_OPTIONS, numbers: false });
+
+  assert.match(markup, /^<mrow><mo>\(<\/mo>.*<mo>\)<\/mo><\/mrow><mo>×<\/mo><mn>1000<\/mn>$/);
+});
+
+test("a step shows the result only on the line with numbers, and text is escaped", () => {
+  const step = { quantity: "array_power", expression: ARRAY_EXPRESSION, result: 46.25, unit: "kWp" };
+
+  const { symbolic, numeric } = stepMathML(step, { ...MATH_OPTIONS, label: 'Array "power" <1>' });
+
+  assert.doesNotMatch(symbolic, /46\.25/);
+  assert.match(numeric, /<mo>=<\/mo><mn>46\.25<\/mn><mspace width="0.2em"><\/mspace><mtext>kWp<\/mtext><\/math>$/);
+  assert.match(symbolic, /aria-label="Array &quot;power&quot; &lt;1&gt;"/);
+});
+
+test("the legend lists each symbol once, in reading order", () => {
+  assert.deepEqual(
+    symbolsUsed(ARRAY_EXPRESSION).map(({ key, qualifier }) => `${key}|${qualifier ?? ""}`),
+    ["daytime_energy|", "nighttime_energy|", "battery_efficiency|", "peak_sun_hours|year", "performance_ratio|"],
+  );
+});

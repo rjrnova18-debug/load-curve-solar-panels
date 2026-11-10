@@ -77,3 +77,21 @@ def test_placeholders_match_between_languages(lang: str) -> None:
     english = messages("en")
     for key, text in messages(lang).items():
         assert set(re.findall(r"\{(\w+)\}", text)) == set(re.findall(r"\{(\w+)\}", english[key]))
+
+
+def symbols_emitted_by_the_domain() -> set[str]:
+    """Symbol and quantity keys the sizing module puts in its calculation steps."""
+    sizing = (SRC / "domain" / "sizing.py").read_text(encoding="utf-8")
+    keys = set(re.findall(r'\bvalue\(\s*"(\w+)"', sizing))
+    keys |= set(re.findall(r'\bstep\(\s*"(\w+)"', sizing))
+    return keys
+
+
+@pytest.mark.parametrize("lang", LANGUAGES)
+def test_every_calculation_symbol_is_translated(lang: str) -> None:
+    keys = symbols_emitted_by_the_domain()
+    assert len(keys) >= 10  # guards against the patterns silently matching nothing
+
+    missing = {key for key in keys if f"symbols.{key}.base" not in messages(lang)}
+
+    assert not missing

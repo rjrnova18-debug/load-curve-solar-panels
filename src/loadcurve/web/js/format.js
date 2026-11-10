@@ -2,15 +2,17 @@
 
 const LOCALES = { en: "en-US", es: "es-CO" };
 
-function formatter(lang, digits) {
+function formatter(lang, digits, grouping) {
   return new Intl.NumberFormat(LOCALES[lang] ?? lang, {
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
+    useGrouping: grouping,
   });
 }
 
-export function formatNumber(value, lang, digits = 0) {
-  return formatter(lang, digits).format(value);
+/** grouping: false drops thousands separators ("1000", not the ambiguous "1.000" in Spanish). */
+export function formatNumber(value, lang, digits = 0, { grouping = true } = {}) {
+  return formatter(lang, digits, grouping).format(value);
 }
 
 /** Power with a unit that keeps numbers short: 350 W, 12.4 kW, 1.20 MW. */
@@ -34,9 +36,9 @@ export function formatPercent(fraction, lang) {
   }).format(fraction);
 }
 
-/** Short month names in the user's language: ["Jan", "Feb", ...] or ["ene", "feb", ...]. */
-export function monthNames(lang) {
-  const format = new Intl.DateTimeFormat(LOCALES[lang] ?? lang, { month: "short", timeZone: "UTC" });
+/** Month names in the user's language: short ["Jan", ...] / ["ene", ...] or "long". */
+export function monthNames(lang, style = "short") {
+  const format = new Intl.DateTimeFormat(LOCALES[lang] ?? lang, { month: style, timeZone: "UTC" });
   return Array.from({ length: 12 }, (_, month) =>
     format.format(new Date(Date.UTC(2025, month, 15))).replace(".", ""),
   );
