@@ -39,10 +39,10 @@ def test_without_solar_resource_has_only_the_consumption_sheets() -> None:
     ]
 
 
-def test_with_solar_resource_adds_sizing_and_assumptions() -> None:
+def test_with_solar_resource_adds_sizing_calculations_and_assumptions() -> None:
     workbook = workbook_for(Study(load_table=FRIDGE, solar_resource=SUNNY))
 
-    assert workbook.sheetnames[-2:] == ["Sizing", "Assumptions"]
+    assert workbook.sheetnames[-3:] == ["Sizing", "Calculations", "Assumptions"]
 
 
 def test_summary_holds_daily_and_yearly_energy() -> None:
@@ -80,3 +80,27 @@ def test_unfeasible_off_grid_is_explained() -> None:
     sheet = workbook_for(Study(load_table=FRIDGE, solar_resource=POLAR))["Sizing"]
 
     assert set(column(sheet, "Off-grid")) == {NOT_FEASIBLE}
+
+
+def test_calculations_sheet_shows_every_formula_with_its_numbers() -> None:
+    sheet = workbook_for(Study(load_table=FRIDGE, solar_resource=SUNNY))["Calculations"]
+
+    assert [cell.value for cell in sheet[1]] == [
+        "System",
+        "Quantity",
+        "Formula",
+        "With your numbers",
+        "Result",
+        "Unit",
+    ]
+    hybrid_battery = next(
+        r for r in sheet.iter_rows(min_row=2, values_only=True) if r[:2] == ("Hybrid", "C_battery")
+    )
+    assert hybrid_battery[2] == "E_night,max ÷ (DoD × η)"
+    assert hybrid_battery[4] == pytest.approx(12 / 0.76)
+
+
+def test_calculations_sheet_explains_an_unfeasible_off_grid() -> None:
+    sheet = workbook_for(Study(load_table=FRIDGE, solar_resource=POLAR))["Calculations"]
+
+    assert NOT_FEASIBLE in column(sheet, "Formula")

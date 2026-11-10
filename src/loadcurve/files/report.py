@@ -1,8 +1,8 @@
 """The downloadable Excel report of a Study: one sheet per table.
 
 Sheets: Summary, Loads, Hourly profile, Load duration curve, Monthly energy and,
-when the Study has a Solar resource, Sizing and Assumptions. Values are raw
-numbers (no rounding) so the user can keep calculating in Excel.
+when the Study has a Solar resource, Sizing, Calculations and Assumptions. Values
+are raw numbers (no rounding) so the user can keep calculating in Excel.
 """
 
 import io
@@ -14,6 +14,7 @@ from loadcurve.domain.analysis import LoadAnalysis, PeriodStats
 from loadcurve.domain.models import SizingAssumptions, SolarResource
 from loadcurve.domain.sizing import SizingComparison, SystemSizing
 from loadcurve.domain.study import Study, StudyResult
+from loadcurve.files.formula_text import QUANTITIES, expression_text
 from loadcurve.files.load_table_io import load_table_frame
 
 NOT_FEASIBLE = "Not feasible: a month with consumption has no sun"
@@ -31,6 +32,7 @@ def build_report(study: Study, result: StudyResult) -> bytes:
     }
     if result.sizing is not None and study.solar_resource is not None:
         sheets["Sizing"] = _sizing(result.sizing)
+        sheets["Calculations"] = _calculations(result.sizing)
         sheets["Assumptions"] = _assumptions(study.assumptions, study.solar_resource)
 
     buffer = io.BytesIO()
@@ -131,6 +133,34 @@ def _sizing(sizing: SizingComparison) -> pd.DataFrame:
             for label, read in rows
         ],
         columns=["Item", *systems],
+    )
+
+
+def _calculations(sizing: SizingComparison) -> pd.DataFrame:
+    """Every formula behind the Sizing sheet, with symbols and with the numbers used."""
+    systems: dict[str, SystemSizing | None] = {
+        "On-grid": sizing.on_grid,
+        "Hybrid": sizing.hybrid,
+        "Off-grid": sizing.off_grid,
+    }
+    rows = []
+    for name, system in systems.items():
+        if system is None:
+            rows.append([name, "", NOT_FEASIBLE, "", None, ""])
+            continue
+        for calculation in system.steps:
+            rows.append(
+                [
+                    name,
+                    QUANTITIES[calculation.quantity],
+                    expression_text(calculation.expression, numbers=False),
+                    expression_text(calculation.expression, numbers=True),
+                    calculation.result,
+                    calculation.unit,
+                ]
+            )
+    return pd.DataFrame(
+        rows, columns=["System", "Quantity", "Formula", "With your numbers", "Result", "Unit"]
     )
 
 
