@@ -66,7 +66,8 @@
     "hours_unit": "h",
     "average": "En promedio, {hours} horas sol pico al día.",
     "from_pvgis": "Datos de PVGIS. Inclinación óptima del panel: {slope}°, azimut {azimuth}° (0° mira al sur, 180° al norte).",
-    "typed_by_hand": "Escritas a mano."
+    "typed_by_hand": "Escritas a mano.",
+    "no_horizon": "Sin sombras del relieve: PVGIS no pudo incluirlas para este punto."
   },
   "results": {
     "title": "Tu consumo",
@@ -203,6 +204,7 @@
     "coordinates_out_of_range": "Escribe una latitud entre -90 y 90 y una longitud entre -180 y 180.",
     "geolocation_denied": "Tu navegador no compartió tu ubicación. Escribe las coordenadas.",
     "study_file_invalid": "Este archivo no es un estudio guardado con esta herramienta.",
-    "study_file_newer": "Este estudio se guardó con una versión más nueva de la herramienta y no se puede abrir aquí."
+    "study_file_newer": "Este estudio se guardó con una versión más nueva de la herramienta y no se puede abrir aquí.",
+    "pvgis_cannot_compute": "PVGIS no pudo calcular este punto. Prueba un punto a unos kilómetros o escribe las horas sol a mano."
   }
 }

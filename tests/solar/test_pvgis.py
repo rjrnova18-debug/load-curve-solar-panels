@@ -3,6 +3,8 @@
 """
 
 import json
+import logging
+import time
 from collections.abc import Callable
 from pathlib import Path
 
@@ -76,22 +78,96 @@ class TestLocationErrors:
         assert lookup_error(respond(400, json=message)) == "invalid_location"
 
 
+def scripted(*steps: Callable[[httpx2.Request], httpx2.Response]) -> tuple[Handler, list]:
+    """A handler that plays one step per request and records every request it saw."""
+    seen: list[httpx2.Request] = []
+
+    def handler(request: httpx2.Request) -> httpx2.Response:
+        seen.append(request)
+        return steps[min(len(seen), len(steps)) - 1](request)
+
+    return handler, seen
+
+
+def drop_connection(request: httpx2.Request) -> httpx2.Response:
+    raise httpx2.RemoteProtocolError(
+        "Server disconnected without sending a response.", request=request
+    )
+
+
+SERVER_ERROR = respond(500, json={"message": "Internal Server Error", "status": 500})
+
+
 class TestServiceErrors:
-    def test_timeout(self) -> None:
-        def handler(request: httpx2.Request) -> httpx2.Response:
+    def test_a_timeout_is_not_retried(self) -> None:
+        def time_out(request: httpx2.Request) -> httpx2.Response:
             raise httpx2.ReadTimeout("PVGIS took too long", request=request)
 
-        assert lookup_error(handler) == "pvgis_unavailable"
-
-    def test_connection_failure(self) -> None:
-        def handler(request: httpx2.Request) -> httpx2.Response:
-            raise httpx2.ConnectError("no route to host", request=request)
+        handler, seen = scripted(time_out)
 
         assert lookup_error(handler) == "pvgis_unavailable"
+        assert len(seen) == 1  # retrying would double a long wait
 
-    @pytest.mark.parametrize("status", [429, 500, 503])
-    def test_server_side_errors(self, status: int) -> None:
+    def test_a_dropped_connection_is_retried_once(self) -> None:
+        handler, seen = scripted(drop_connection, respond(200, json=BOGOTA))
+
+        lookup = fetch_solar_resource(4.711, -74.072, fake_client(handler))
+
+        assert len(seen) == 2
+        assert lookup.solar_resource.peak_sun_hours[0] == 5.09
+
+    def test_two_dropped_connections_give_up(self) -> None:
+        handler, seen = scripted(drop_connection, drop_connection)
+
+        assert lookup_error(handler) == "pvgis_unavailable"
+        assert len(seen) == 2
+
+    @pytest.mark.parametrize("status", [429, 502, 503])
+    def test_busy_or_gateway_errors(self, status: int) -> None:
         assert lookup_error(respond(status, text="busy")) == "pvgis_unavailable"
+
+    def test_a_hung_request_is_cut_at_the_deadline(self) -> None:
+        def hang(request: httpx2.Request) -> httpx2.Response:
+            time.sleep(1.5)
+            return httpx2.Response(200, json=BOGOTA)
+
+        started = time.perf_counter()
+        with pytest.raises(PvgisError) as excinfo:
+            fetch_solar_resource(4.711, -74.072, fake_client(hang), deadline_seconds=0.2)
+
+        assert excinfo.value.code == "pvgis_unavailable"
+        assert time.perf_counter() - started < 1.0
+
+
+class TestLocationsPvgisCannotCompute:
+    def test_retries_without_terrain_shading(self) -> None:
+        handler, seen = scripted(SERVER_ERROR, respond(200, json=BOGOTA))
+
+        lookup = fetch_solar_resource(5.85, -74.07, fake_client(handler))
+
+        assert "usehorizon" not in seen[0].url.params
+        assert seen[1].url.params["usehorizon"] == "0"
+        assert lookup.horizon_shading is False
+
+    def test_normal_answers_include_terrain_shading(self) -> None:
+        lookup = fetch_solar_resource(4.711, -74.072, fake_client(respond(200, json=BOGOTA)))
+
+        assert lookup.horizon_shading is True
+
+    def test_two_server_errors_mean_this_point_cannot_be_computed(self) -> None:
+        handler, seen = scripted(SERVER_ERROR, SERVER_ERROR)
+
+        assert lookup_error(handler) == "pvgis_cannot_compute"
+        assert len(seen) == 2
+
+    def test_the_cause_is_logged(self, caplog: pytest.LogCaptureFixture) -> None:
+        handler, _ = scripted(SERVER_ERROR, SERVER_ERROR)
+
+        with caplog.at_level(logging.WARNING, logger="loadcurve.solar.pvgis"):
+            lookup_error(handler)
+
+        assert "HTTP 500" in caplog.text
+        assert "lat=4.711" in caplog.text
 
 
 class TestUnexpectedResponses:

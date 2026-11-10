@@ -66,7 +66,8 @@
     "hours_unit": "h",
     "average": "On average, {hours} peak sun hours a day.",
     "from_pvgis": "From PVGIS. Best panel tilt: {slope}°, azimuth {azimuth}° (0° faces south, 180° faces north).",
-    "typed_by_hand": "Entered by hand."
+    "typed_by_hand": "Entered by hand.",
+    "no_horizon": "Terrain shading was left out: PVGIS could not include it for this point."
   },
   "results": {
     "title": "Your consumption",
@@ -203,6 +204,7 @@
     "coordinates_out_of_range": "Enter a latitude between -90 and 90 and a longitude between -180 and 180.",
     "geolocation_denied": "Your browser did not share your location. Type the coordinates instead.",
     "study_file_invalid": "This file is not a study saved by this tool.",
-    "study_file_newer": "This study was saved by a newer version of the tool and cannot be opened here."
+    "study_file_newer": "This study was saved by a newer version of the tool and cannot be opened here.",
+    "pvgis_cannot_compute": "PVGIS could not calculate this point. Try a point a few kilometres away, or type the sun hours by hand."
   }
 }

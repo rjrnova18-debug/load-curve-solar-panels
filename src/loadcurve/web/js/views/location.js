@@ -163,6 +163,7 @@ export function createLocation(root, store) {
           azimuth: formatNumber(found.optimal_azimuth_deg, lang, 0),
         }),
       );
+      if (found.horizon_shading === false) parts.push(t("location.no_horizon"));
     } else {
       parts.push(t("location.typed_by_hand"));
     }
