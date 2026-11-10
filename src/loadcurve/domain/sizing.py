@@ -13,6 +13,10 @@ for the same Load analysis so they can be compared side by side:
 
 Night-time energy passes through the battery, so hybrid and off-grid arrays also
 produce what the battery loses: daytime + night-time / battery efficiency.
+
+Every number comes from evaluating a Calculation step (see ``calculation``), and
+the steps travel with the result, so the formulas shown to the user are exactly
+the ones that produced the numbers.
 """
 
 import math
@@ -20,6 +24,18 @@ import math
 from pydantic import BaseModel, ConfigDict
 
 from loadcurve.domain.analysis import LoadAnalysis, MonthlyEnergy
+from loadcurve.domain.calculation import (
+    CalculationStep,
+    Expression,
+    ceiling,
+    constant,
+    evaluate,
+    over,
+    plus,
+    step,
+    times,
+    value,
+)
 from loadcurve.domain.models import (
     DAYS_IN_MONTH,
     SizingAssumptions,
@@ -28,6 +44,7 @@ from loadcurve.domain.models import (
 )
 
 W_PER_KW = 1000.0
+DAYS_IN_YEAR = sum(DAYS_IN_MONTH)
 
 
 class SystemSizing(BaseModel):
@@ -44,6 +61,7 @@ class SystemSizing(BaseModel):
     installed_power_kwp: float
     battery_capacity_kwh: float  # nominal capacity; 0 for on-grid
     inverter_power_kw: float
+    steps: tuple[CalculationStep, ...]  # how each number above was calculated
 
 
 class SizingComparison(BaseModel):
@@ -72,43 +90,45 @@ def size_systems(
 def _size_on_grid(
     analysis: LoadAnalysis, solar: SolarResource, assumptions: SizingAssumptions
 ) -> SystemSizing:
-    yearly_target_kwh = analysis.annual_energy_kwh * assumptions.on_grid_coverage
-    array_kwp, daily_kwh, psh = _yearly_array(yearly_target_kwh, solar, assumptions)
-    panel_count, installed_kwp = _panels(array_kwp, assumptions)
-
-    return SystemSizing(
-        system_type=SystemType.ON_GRID,
-        design_month=None,
-        design_daily_energy_kwh=daily_kwh,
-        design_peak_sun_hours=psh,
-        array_power_kwp=array_kwp,
-        panel_count=panel_count,
-        installed_power_kwp=installed_kwp,
-        battery_capacity_kwh=0.0,
-        inverter_power_kw=installed_kwp,
+    energy = times(
+        value("coverage", assumptions.on_grid_coverage),
+        value("daily_energy", analysis.annual_energy_kwh / DAYS_IN_YEAR, "kWh"),
+    )
+    sun = value("peak_sun_hours", _yearly_peak_sun_hours(solar), "h", "year")
+    array = _array_step(energy, sun, assumptions)
+    panels = _panels_step(array.result, assumptions)
+    inverter = step(
+        "inverter_power",
+        over(
+            times(
+                value("panel_count", panels.result),
+                value("panel_power", assumptions.panel_power_w, "W"),
+            ),
+            constant(W_PER_KW),
+        ),
+        "kW",
+    )
+    return _system(
+        SystemType.ON_GRID, None, energy, sun, array, panels, None, inverter, assumptions
     )
 
 
 def _size_hybrid(
     analysis: LoadAnalysis, solar: SolarResource, assumptions: SizingAssumptions
 ) -> SystemSizing:
-    yearly_target_kwh = sum(
-        _energy_to_produce_kwh(month, assumptions) for month in analysis.monthly
+    energy = _energy_through_battery(
+        analysis.annual_daytime_energy_kwh / DAYS_IN_YEAR,
+        analysis.annual_nighttime_energy_kwh / DAYS_IN_YEAR,
+        assumptions,
     )
-    array_kwp, daily_kwh, psh = _yearly_array(yearly_target_kwh, solar, assumptions)
-    panel_count, installed_kwp = _panels(array_kwp, assumptions)
-    night_kwh = max(month.nighttime_energy_kwh / month.days for month in analysis.monthly)
-
-    return SystemSizing(
-        system_type=SystemType.HYBRID,
-        design_month=None,
-        design_daily_energy_kwh=daily_kwh,
-        design_peak_sun_hours=psh,
-        array_power_kwp=array_kwp,
-        panel_count=panel_count,
-        installed_power_kwp=installed_kwp,
-        battery_capacity_kwh=_battery_capacity_kwh(night_kwh, assumptions),
-        inverter_power_kw=_load_inverter_kw(analysis, assumptions),
+    sun = value("peak_sun_hours", _yearly_peak_sun_hours(solar), "h", "year")
+    array = _array_step(energy, sun, assumptions)
+    panels = _panels_step(array.result, assumptions)
+    busiest_night_kwh = max(month.nighttime_energy_kwh / month.days for month in analysis.monthly)
+    battery = _battery_step(value("nighttime_energy", busiest_night_kwh, "kWh", "max"), assumptions)
+    inverter = _load_inverter_step(analysis, assumptions)
+    return _system(
+        SystemType.HYBRID, None, energy, sun, array, panels, battery, inverter, assumptions
     )
 
 
@@ -127,22 +147,139 @@ def _size_off_grid(
     critical = max(analysis.monthly, key=lambda month: round(required_kwp(month), 9))
     if math.isinf(required_kwp(critical)):
         return None
-    array_kwp = required_kwp(critical)
-    panel_count, installed_kwp = _panels(array_kwp, assumptions)
-    busiest_day_kwh = max(month.energy_kwh / month.days for month in analysis.monthly)
 
-    return SystemSizing(
-        system_type=SystemType.OFF_GRID,
-        design_month=critical.month,
-        design_daily_energy_kwh=_energy_to_produce_kwh(critical, assumptions) / critical.days,
-        design_peak_sun_hours=solar.peak_sun_hours[critical.month - 1],
-        array_power_kwp=array_kwp,
-        panel_count=panel_count,
-        installed_power_kwp=installed_kwp,
-        battery_capacity_kwh=_battery_capacity_kwh(
-            busiest_day_kwh * assumptions.days_of_autonomy, assumptions
+    in_month = f"month:{critical.month}"
+    energy = _energy_through_battery(
+        critical.daytime_energy_kwh / critical.days,
+        critical.nighttime_energy_kwh / critical.days,
+        assumptions,
+        qualifier=in_month,
+    )
+    sun = value("peak_sun_hours", solar.peak_sun_hours[critical.month - 1], "h", in_month)
+    array = _array_step(energy, sun, assumptions)
+    panels = _panels_step(array.result, assumptions)
+    busiest_day_kwh = max(month.energy_kwh / month.days for month in analysis.monthly)
+    battery = _battery_step(
+        times(
+            value("daily_energy", busiest_day_kwh, "kWh", "max"),
+            value("days_of_autonomy", assumptions.days_of_autonomy),
         ),
-        inverter_power_kw=_load_inverter_kw(analysis, assumptions),
+        assumptions,
+    )
+    inverter = _load_inverter_step(analysis, assumptions)
+    return _system(
+        SystemType.OFF_GRID,
+        critical.month,
+        energy,
+        sun,
+        array,
+        panels,
+        battery,
+        inverter,
+        assumptions,
+    )
+
+
+# ---------- Formulas ----------
+
+
+def _energy_through_battery(
+    daytime_kwh: float,
+    nighttime_kwh: float,
+    assumptions: SizingAssumptions,
+    qualifier: str | None = None,
+) -> Expression:
+    """Daily energy the array must produce when night-time runs from the battery."""
+    return plus(
+        value("daytime_energy", daytime_kwh, "kWh", qualifier),
+        over(
+            value("nighttime_energy", nighttime_kwh, "kWh", qualifier),
+            value("battery_efficiency", assumptions.battery_efficiency),
+        ),
+    )
+
+
+def _array_step(
+    energy: Expression, sun: Expression, assumptions: SizingAssumptions
+) -> CalculationStep:
+    """Array power = daily energy / (peak sun hours x performance ratio)."""
+    return step(
+        "array_power",
+        over(energy, times(sun, value("performance_ratio", assumptions.performance_ratio))),
+        "kWp",
+    )
+
+
+def _panels_step(array_kwp: float, assumptions: SizingAssumptions) -> CalculationStep:
+    """Whole panels: array power x 1000 / panel power, rounded up."""
+    return step(
+        "panel_count",
+        ceiling(
+            over(
+                times(value("array_power", array_kwp, "kWp"), constant(W_PER_KW)),
+                value("panel_power", assumptions.panel_power_w, "W"),
+            )
+        ),
+        "",
+    )
+
+
+def _battery_step(energy_to_store: Expression, assumptions: SizingAssumptions) -> CalculationStep:
+    """Nominal capacity whose usable, after-losses share holds the energy."""
+    return step(
+        "battery_capacity",
+        over(
+            energy_to_store,
+            times(
+                value("depth_of_discharge", assumptions.battery_depth_of_discharge),
+                value("battery_efficiency", assumptions.battery_efficiency),
+            ),
+        ),
+        "kWh",
+    )
+
+
+def _load_inverter_step(analysis: LoadAnalysis, assumptions: SizingAssumptions) -> CalculationStep:
+    """Inverter that serves the highest hourly peak of the year with a safety margin."""
+    highest_multiplier = max(month.seasonal_multiplier for month in analysis.monthly)
+    return step(
+        "inverter_power",
+        times(
+            value("peak_power", analysis.whole_day.peak_power_w / W_PER_KW, "kW"),
+            value("seasonal_multiplier", highest_multiplier, "", "max"),
+            value("inverter_safety_factor", assumptions.inverter_safety_factor),
+        ),
+        "kW",
+    )
+
+
+# ---------- Helpers ----------
+
+
+def _system(
+    system_type: SystemType,
+    design_month: int | None,
+    energy: Expression,
+    sun: Expression,
+    array: CalculationStep,
+    panels: CalculationStep,
+    battery: CalculationStep | None,
+    inverter: CalculationStep,
+    assumptions: SizingAssumptions,
+) -> SystemSizing:
+    steps = tuple(s for s in (array, panels, battery, inverter) if s is not None)
+    panel_count = int(panels.result)
+    return SystemSizing(
+        system_type=system_type,
+        design_month=design_month,
+        design_daily_energy_kwh=evaluate(energy),
+        design_peak_sun_hours=evaluate(sun),
+        array_power_kwp=array.result,
+        panel_count=panel_count,
+        installed_power_kwp=panel_count * assumptions.panel_power_w / W_PER_KW,
+        battery_capacity_kwh=battery.result if battery else 0.0,
+        inverter_power_kw=inverter.result,
+        steps=steps,
     )
 
 
@@ -151,37 +288,9 @@ def _energy_to_produce_kwh(month: MonthlyEnergy, assumptions: SizingAssumptions)
     return month.daytime_energy_kwh + month.nighttime_energy_kwh / assumptions.battery_efficiency
 
 
-def _yearly_array(
-    yearly_target_kwh: float, solar: SolarResource, assumptions: SizingAssumptions
-) -> tuple[float, float, float]:
-    """Array power that produces the yearly target, with its daily equivalents.
-
-    Returns (array kWp, design daily energy in kWh, day-weighted average peak sun hours).
-    """
-    days_in_year = sum(DAYS_IN_MONTH)
+def _yearly_peak_sun_hours(solar: SolarResource) -> float:
+    """Peak sun hours averaged over the days of the year."""
     yearly_sun_hours = sum(
         psh * days for psh, days in zip(solar.peak_sun_hours, DAYS_IN_MONTH, strict=True)
     )
-    array_kwp = yearly_target_kwh / (yearly_sun_hours * assumptions.performance_ratio)
-    return array_kwp, yearly_target_kwh / days_in_year, yearly_sun_hours / days_in_year
-
-
-def _panels(array_kwp: float, assumptions: SizingAssumptions) -> tuple[int, float]:
-    """Whole number of panels covering the array, and the power they actually install."""
-    # Rounding first stops float noise (16.0000000001) from adding a phantom panel.
-    exact_count = round(array_kwp * W_PER_KW / assumptions.panel_power_w, 6)
-    panel_count = math.ceil(exact_count)
-    return panel_count, panel_count * assumptions.panel_power_w / W_PER_KW
-
-
-def _battery_capacity_kwh(energy_to_store_kwh: float, assumptions: SizingAssumptions) -> float:
-    """Nominal capacity whose usable, after-losses share holds the given energy."""
-    usable_share = assumptions.battery_depth_of_discharge * assumptions.battery_efficiency
-    return energy_to_store_kwh / usable_share
-
-
-def _load_inverter_kw(analysis: LoadAnalysis, assumptions: SizingAssumptions) -> float:
-    """Inverter that serves the highest hourly peak of the year with a safety margin."""
-    highest_multiplier = max(month.seasonal_multiplier for month in analysis.monthly)
-    peak_w = analysis.whole_day.peak_power_w * highest_multiplier
-    return peak_w * assumptions.inverter_safety_factor / W_PER_KW
+    return yearly_sun_hours / DAYS_IN_YEAR

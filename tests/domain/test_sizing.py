@@ -170,3 +170,66 @@ class TestInputValidation:
     def test_assumptions_reject_out_of_range_values(self, overrides: dict) -> None:
         with pytest.raises(ValidationError):
             SizingAssumptions(**overrides)
+
+
+class TestWorkedCalculations:
+    """Every number of a System sizing comes with the formula that produced it."""
+
+    def comparison(self, settings: AnalysisSettings | None = None):
+        return size_systems(
+            analyze(CONSTANT_1KW, settings or AnalysisSettings()), SUNNY, ASSUMPTIONS
+        )
+
+    @staticmethod
+    def steps_by_quantity(system) -> dict:
+        return {calculation.quantity: calculation for calculation in system.steps}
+
+    @staticmethod
+    def symbols(expression) -> set[tuple[str, str | None]]:
+        if expression.kind == "value":
+            return {(expression.symbol, expression.qualifier)} if expression.symbol else set()
+        children = (
+            expression.terms
+            if expression.kind in ("product", "sum")
+            else (expression.numerator, expression.denominator)
+            if expression.kind == "fraction"
+            else (expression.argument,)
+        )
+        return set().union(*(TestWorkedCalculations.symbols(child) for child in children))
+
+    def test_each_number_matches_its_step(self) -> None:
+        for system in self.comparison().model_dump().values():
+            steps = {s["quantity"]: s["result"] for s in system["steps"]}
+            assert steps["array_power"] == pytest.approx(system["array_power_kwp"])
+            assert steps["panel_count"] == system["panel_count"]
+            assert steps["inverter_power"] == pytest.approx(system["inverter_power_kw"])
+            assert steps.get("battery_capacity", 0) == pytest.approx(system["battery_capacity_kwh"])
+
+    def test_on_grid_has_no_battery_step(self) -> None:
+        on_grid = self.steps_by_quantity(self.comparison().on_grid)
+
+        assert set(on_grid) == {"array_power", "panel_count", "inverter_power"}
+        assert ("panel_count", None) in self.symbols(on_grid["inverter_power"].expression)
+
+    def test_hybrid_array_pays_for_battery_losses(self) -> None:
+        array = self.steps_by_quantity(self.comparison().hybrid)["array_power"]
+
+        assert self.symbols(array.expression) >= {
+            ("daytime_energy", None),
+            ("nighttime_energy", None),
+            ("battery_efficiency", None),
+            ("peak_sun_hours", "year"),
+        }
+
+    def test_off_grid_names_its_critical_month(self) -> None:
+        array = self.steps_by_quantity(self.comparison().off_grid)["array_power"]
+
+        assert ("peak_sun_hours", "month:1") in self.symbols(array.expression)
+
+    def test_inverter_shows_the_seasonal_multiplier(self) -> None:
+        settings = AnalysisSettings(seasonal_multipliers=[1.5] + [1.0] * 11)
+
+        inverter = self.steps_by_quantity(self.comparison(settings).hybrid)["inverter_power"]
+
+        assert ("seasonal_multiplier", "max") in self.symbols(inverter.expression)
+        assert inverter.result == pytest.approx(1.0 * 1.5 * 1.25)
