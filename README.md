@@ -51,6 +51,10 @@ python -m loadcurve
 
 Open <http://127.0.0.1:8000> for the app and <http://127.0.0.1:8000/docs> for the interactive API docs.
 
+## Deployment
+
+[`render.yaml`](render.yaml) describes the service for [Render](https://render.com): it installs the pinned `requirements.txt`, runs `uvicorn loadcurve.api.app:app --host 0.0.0.0 --port $PORT` and checks `/api/health`. A push to `main` redeploys once CI passes. On the free plan the service sleeps when idle, so the first visit can take about a minute.
+
 ## Development
 
 ```bash
@@ -71,7 +75,8 @@ src/loadcurve/
 ├── api/         FastAPI app and routes
 └── web/         frontend: HTML, CSS, JavaScript modules, i18n, vendored Chart.js
     └── js/
-        ├── state.js, api.js, i18n.js, format.js, errors.js, studyFile.js
+        ├── state.js, analysisSync.js, api.js, i18n.js, format.js, errors.js
+        ├── daytime.js, formula.js, syncField.js, studyFile.js
         └── views/   hero, load table, settings, location, results, systems, study actions
 tests/           pytest and node tests, mirroring src/
 ```

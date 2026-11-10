@@ -1,0 +1,10 @@
+# Render Blueprint: one free web service, deployed when CI passes on main.
+services:
+  - type: web
+    name: load-curve-solar-panels
+    runtime: python # version from .python-version
+    plan: free
+    buildCommand: pip install -r requirements.txt && pip install . --no-deps
+    startCommand: uvicorn loadcurve.api.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    autoDeployTrigger: checksPass
