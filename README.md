@@ -122,3 +122,7 @@ Errors carry stable codes that the frontend translates: validation errors use Fa
 - Solar data: [PVGIS](https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en), European Commission Joint Research Centre.
 - Charts: [Chart.js](https://www.chartjs.org/) (MIT).
 - Fonts: [Fredoka](https://fonts.google.com/specimen/Fredoka) and [Atkinson Hyperlegible Next](https://fonts.google.com/specimen/Atkinson+Hyperlegible+Next) (SIL Open Font License).
+
+## License
+
+[MIT](LICENSE)
