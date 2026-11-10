@@ -29,7 +29,8 @@
   font-variant-numeric: tabular-nums;
 }
 
-.field input[aria-invalid="true"] {
+.field input[aria-invalid="true"],
+.month-grid input[aria-invalid="true"] {
   border-color: var(--danger);
 }
 

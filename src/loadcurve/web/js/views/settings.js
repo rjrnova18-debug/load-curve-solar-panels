@@ -4,6 +4,7 @@ import { isDaytime } from "../daytime.js";
 import { formatHour } from "../format.js";
 import { language, t } from "../i18n.js";
 import { HOURS } from "../state.js";
+import { syncField } from "../syncField.js";
 import { createMonthGrid } from "./monthGrid.js";
 
 const MULTIPLIER_MIN = 0;
@@ -60,8 +61,8 @@ export function createSettings(root, store) {
   function render(state) {
     const daytimeWindow = state.study.settings.daytime_window;
     const { start_hour: start, end_hour: end } = daytimeWindow;
-    if (document.activeElement !== startSelect) startSelect.value = String(start);
-    if (document.activeElement !== endSelect) endSelect.value = String(end);
+    syncField(startSelect, start);
+    syncField(endSelect, end);
     stripCells.forEach((cell, hour) => {
       cell.className = isDaytime(daytimeWindow, hour) ? "is-day" : "is-night";
     });

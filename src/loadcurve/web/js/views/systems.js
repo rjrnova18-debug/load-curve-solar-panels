@@ -4,6 +4,7 @@
 import { expressionMathML, stepMathML, symbolsUsed } from "../formula.js";
 import { formatNumber, monthNames } from "../format.js";
 import { language, t } from "../i18n.js";
+import { syncField } from "../syncField.js";
 
 const SYSTEMS = ["on_grid", "hybrid", "off_grid"];
 
@@ -193,9 +194,8 @@ export function createSystems(root, store) {
     panel.hidden = !sizing;
 
     for (const { spec, input } of inputs) {
-      if (document.activeElement === input) continue;
       const value = state.study.assumptions[spec.key];
-      input.value = String(spec.percent ? Math.round(value * 100) : value);
+      syncField(input, spec.percent ? Math.round(value * 100) : value);
     }
     if (!sizing) return;
 

@@ -12,6 +12,7 @@ import { formatEnergy, formatHour, formatPercent, formatPower } from "../../src/
 import { pickLanguage, translate } from "../../src/loadcurve/web/js/i18n.js";
 import { createStore, emptyStudy, initialState, isAnalysable } from "../../src/loadcurve/web/js/state.js";
 import { parseStudyFile, serializeStudy } from "../../src/loadcurve/web/js/studyFile.js";
+import { fieldShows, syncField } from "../../src/loadcurve/web/js/syncField.js";
 import { pickTheme } from "../../src/loadcurve/web/js/theme.js";
 
 test("language: saved choice wins, then the browser, then English", () => {
@@ -305,3 +306,62 @@ test("analysis errors keep their code; anything else becomes generic", async (t)
   assert.equal(store.get().error.code, "generic");
 });
 
+// ---------- syncField ----------
+
+/** Just enough of an <input> for syncField: a value, focus and an invalid mark. */
+function fakeField() {
+  const page = { activeElement: null };
+  const attributes = new Map();
+  const field = {
+    ownerDocument: page,
+    value: "",
+    focus: () => (page.activeElement = field),
+    blur: () => (page.activeElement = null),
+    setAttribute: (name, value) => attributes.set(name, value),
+    removeAttribute: (name) => attributes.delete(name),
+    invalid: () => attributes.get("aria-invalid") === "true",
+  };
+  return field;
+}
+
+test("syncField shows the state value, formatted", () => {
+  const field = fakeField();
+  syncField(field, 0.75);
+  assert.equal(field.value, "0.75");
+  syncField(field, null, (value) => (value === null ? "" : String(value)));
+  assert.equal(field.value, "");
+});
+
+test("syncField never writes into the field the user is typing in", () => {
+  const field = fakeField();
+  syncField(field, 1);
+  field.focus();
+  field.value = "0.";
+  syncField(field, 2);
+  assert.equal(field.value, "0.");
+  field.blur();
+  syncField(field, 2);
+  assert.equal(field.value, "2");
+});
+
+test("syncField keeps an invalid entry until the state changes", () => {
+  const field = fakeField();
+  syncField(field, 0.75);
+  field.value = "5";
+  field.setAttribute("aria-invalid", "true");
+  syncField(field, 0.75); // e.g. another field changed
+  assert.equal(field.value, "5");
+  assert.ok(field.invalid());
+  syncField(field, 0.8); // e.g. a study was opened
+  assert.equal(field.value, "0.8");
+  assert.ok(!field.invalid());
+});
+
+test("syncField keeps text the user typed for the value they meant", () => {
+  const field = fakeField();
+  syncField(field, null, String);
+  field.value = "4.70";
+  fieldShows(field, 4.7);
+  syncField(field, 4.7);
+  assert.equal(field.value, "4.70");
+});

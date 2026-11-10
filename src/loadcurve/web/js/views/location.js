@@ -7,11 +7,14 @@ import { describeError } from "../errors.js";
 import { formatNumber } from "../format.js";
 import { language, t } from "../i18n.js";
 import { MONTHS } from "../state.js";
+import { fieldShows, syncField } from "../syncField.js";
 import { createMonthGrid } from "./monthGrid.js";
 
 const DEFAULT_PEAK_SUN_HOURS = 4.5;
 const MAX_PEAK_SUN_HOURS = 12;
 const RETRYABLE = new Set(["pvgis_unavailable", "network"]);
+
+const coordinateText = (value) => (value === null ? "" : String(value));
 
 export function createLocation(root, store) {
   const latInput = root.querySelector("[data-lat]");
@@ -82,7 +85,7 @@ export function createLocation(root, store) {
     input.addEventListener("change", () => {
       const value = Number(input.value);
       const valid = input.value.trim() !== "" && Number.isFinite(value) && Math.abs(value) <= limit;
-      shownCoordinates.set(input, valid ? value : null);
+      fieldShows(input, valid ? value : null);
       updateLocation({ [key]: valid ? value : null });
     });
   }
@@ -119,26 +122,13 @@ export function createLocation(root, store) {
     sameForAll.value = "";
   });
 
-  const shownCoordinates = new Map([
-    [latInput, null],
-    [lonInput, null],
-  ]);
-
   function render(state) {
     const lang = language();
     const { status: lookupStatus, error, lookup: found, source } = state.location;
     const solar = state.study.solar_resource;
 
-    // Write coordinates only when the state's value changed (an opened study, a
-    // geolocation), so what the user is typing is never overwritten.
-    for (const [input, value] of [
-      [latInput, state.location.latitude],
-      [lonInput, state.location.longitude],
-    ]) {
-      if (shownCoordinates.get(input) === value || document.activeElement === input) continue;
-      shownCoordinates.set(input, value);
-      input.value = value === null ? "" : String(value);
-    }
+    syncField(latInput, state.location.latitude, coordinateText);
+    syncField(lonInput, state.location.longitude, coordinateText);
 
     const busy = lookupStatus === "loading" || lookupStatus === "locating";
     lookupButton.disabled = busy;

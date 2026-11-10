@@ -3,6 +3,7 @@
 
 import { monthNames } from "../format.js";
 import { MONTHS } from "../state.js";
+import { syncField } from "../syncField.js";
 
 /**
  * @param container element to fill
@@ -33,7 +34,9 @@ export function createMonthGrid(container, { min, max, step, scale = 1, full = m
     });
     input.addEventListener("input", () => {
       const number = Number(input.value);
-      if (input.value.trim() === "" || Number.isNaN(number)) return;
+      const valid = input.value.trim() !== "" && Number.isFinite(number);
+      input.setAttribute("aria-invalid", String(!valid));
+      if (!valid) return;
       const clamped = Math.min(max * scale, Math.max(min * scale, number));
       values = values.with(month, clamped / scale);
       onChange(values);
@@ -43,16 +46,14 @@ export function createMonthGrid(container, { min, max, step, scale = 1, full = m
     return { bar, name, input };
   });
 
-  /** Show values (keeping whatever the user is typing in the focused input). */
+  /** Show values, never overwriting what the user typed (see syncField). */
   function render(nextValues, lang) {
     values = [...nextValues];
     const names = monthNames(lang);
     cells.forEach(({ bar, name, input }, month) => {
       name.textContent = names[month];
       bar.style.setProperty("--fill", String(Math.min(1, values[month] / full)));
-      if (document.activeElement !== input) {
-        input.value = String(Math.round(values[month] * scale * 100) / 100);
-      }
+      syncField(input, Math.round(values[month] * scale * 100) / 100);
     });
   }
 
