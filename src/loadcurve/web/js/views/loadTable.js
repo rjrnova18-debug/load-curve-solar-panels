@@ -6,6 +6,7 @@
 // Load table was replaced (sample, import, opened study) the rows are rebuilt.
 
 import { downloadFile, importLoadTable } from "../api.js";
+import { isDaytime } from "../daytime.js";
 import { describeError } from "../errors.js";
 import { formatHour } from "../format.js";
 import { t } from "../i18n.js";
@@ -23,10 +24,6 @@ function element(tag, attributes = {}, children = []) {
   return node;
 }
 
-function daytimeHours(study) {
-  const { start_hour: start, end_hour: end } = study.settings.daytime_window;
-  return new Set(Array.from({ length: (end - start + HOURS) % HOURS }, (_, i) => (start + i) % HOURS));
-}
 
 export function createLoadTable(root, store) {
   const table = root.querySelector("[data-loads-table]");
@@ -295,9 +292,9 @@ export function createLoadTable(root, store) {
     note.hidden = !hasLoads;
     exportButton.disabled = !hasLoads;
 
-    const daytime = daytimeHours(state.study);
+    const daytimeWindow = state.study.settings.daytime_window;
     for (const cell of table.querySelectorAll(".col-hour")) {
-      const isDay = daytime.has(Number(cell.dataset.hour));
+      const isDay = isDaytime(daytimeWindow, Number(cell.dataset.hour));
       cell.classList.toggle("is-day", isDay);
       cell.classList.toggle("is-night", !isDay);
     }

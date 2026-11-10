@@ -1,0 +1,35 @@
+{
+  "description": "Shared cases for the Daytime window rule. Read by tests/domain/test_models.py (Python DaytimeWindow) and tests/web/frontend.test.mjs (web/js/daytime.js), so both implementations must agree. Day runs from start (included) to end (excluded) and may cross midnight.",
+  "cases": [
+    {
+      "start": 6,
+      "end": 18,
+      "daytime": [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
+      "nighttime": [18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5]
+    },
+    {
+      "start": 22,
+      "end": 6,
+      "daytime": [22, 23, 0, 1, 2, 3, 4, 5],
+      "nighttime": [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+    },
+    {
+      "start": 0,
+      "end": 23,
+      "daytime": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22],
+      "nighttime": [23]
+    },
+    {
+      "start": 23,
+      "end": 0,
+      "daytime": [23],
+      "nighttime": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
+    },
+    {
+      "start": 7,
+      "end": 19,
+      "daytime": [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+      "nighttime": [19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5, 6]
+    }
+  ]
+}

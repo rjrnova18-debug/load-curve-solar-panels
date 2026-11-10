@@ -1,5 +1,6 @@
 // Step 2: the Daytime window and the Seasonal multipliers.
 
+import { isDaytime } from "../daytime.js";
 import { formatHour } from "../format.js";
 import { language, t } from "../i18n.js";
 import { HOURS } from "../state.js";
@@ -57,12 +58,12 @@ export function createSettings(root, store) {
   });
 
   function render(state) {
-    const { start_hour: start, end_hour: end } = state.study.settings.daytime_window;
+    const daytimeWindow = state.study.settings.daytime_window;
+    const { start_hour: start, end_hour: end } = daytimeWindow;
     if (document.activeElement !== startSelect) startSelect.value = String(start);
     if (document.activeElement !== endSelect) endSelect.value = String(end);
     stripCells.forEach((cell, hour) => {
-      const isDay = (hour - start + HOURS) % HOURS < (end - start + HOURS) % HOURS;
-      cell.className = isDay ? "is-day" : "is-night";
+      cell.className = isDaytime(daytimeWindow, hour) ? "is-day" : "is-night";
     });
     strip.setAttribute(
       "aria-label",

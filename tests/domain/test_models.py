@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 import pytest
 from pydantic import ValidationError
 
@@ -60,26 +63,27 @@ class TestLoadTable:
         assert error_type(excinfo) == "duplicate_load_name"
 
 
+# Shared with the frontend's daytime.js tests: both implementations must agree.
+DAYTIME_CASES = json.loads(
+    (Path(__file__).parents[1] / "fixtures" / "daytime_cases.json").read_text(encoding="utf-8")
+)["cases"]
+
+
 class TestDaytimeWindow:
     def test_default_is_six_to_eighteen(self) -> None:
-        window = DaytimeWindow()
+        assert DaytimeWindow() == DaytimeWindow(start_hour=6, end_hour=18)
 
-        assert window.daytime_hours() == tuple(range(6, 18))
-        assert window.nighttime_hours() == (18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5)
+    @pytest.mark.parametrize("case", DAYTIME_CASES, ids=lambda c: f"{c['start']}-{c['end']}")
+    def test_shared_cases(self, case: dict) -> None:
+        window = DaytimeWindow(start_hour=case["start"], end_hour=case["end"])
 
-    def test_window_can_cross_midnight(self) -> None:
-        window = DaytimeWindow(start_hour=22, end_hour=6)
+        assert window.daytime_hours() == tuple(case["daytime"])
+        assert window.nighttime_hours() == tuple(case["nighttime"])
 
-        assert window.daytime_hours() == (22, 23, 0, 1, 2, 3, 4, 5)
-        assert window.nighttime_hours() == tuple(range(6, 22))
-
-    @pytest.mark.parametrize(("start", "end"), [(6, 18), (22, 6), (0, 23), (23, 0)])
-    def test_day_and_night_cover_every_hour_exactly_once(self, start: int, end: int) -> None:
-        window = DaytimeWindow(start_hour=start, end_hour=end)
-
-        hours = window.daytime_hours() + window.nighttime_hours()
-
-        assert sorted(hours) == list(range(24))
+    @pytest.mark.parametrize("case", DAYTIME_CASES, ids=lambda c: f"{c['start']}-{c['end']}")
+    def test_every_case_covers_each_hour_once(self, case: dict) -> None:
+        # Guards the fixture itself, which the frontend tests also trust.
+        assert sorted(case["daytime"] + case["nighttime"]) == list(range(24))
 
     def test_rejects_equal_start_and_end(self) -> None:
         # The legacy app silently treated this as "24 h of day, no night".

@@ -4,6 +4,7 @@
 //
 // The scene is built once; render() only moves and recolours it, so edits animate.
 
+import { daytimeHours, nighttimeHours } from "../daytime.js";
 import { formatEnergy, formatHour, formatPercent, formatPower } from "../format.js";
 import { language, t } from "../i18n.js";
 import { HOURS } from "../state.js";
@@ -262,9 +263,10 @@ export function createHero(root) {
   }
 
   function render(state) {
-    const { start_hour: start, end_hour: end } = state.study.settings.daytime_window;
-    const daytime = new Set(Array.from({ length: (end - start + HOURS) % HOURS }, (_, i) => (start + i) % HOURS));
-    const night = Array.from({ length: HOURS - daytime.size }, (_, i) => (end + i) % HOURS);
+    const daytimeWindow = state.study.settings.daytime_window;
+    const { start_hour: start, end_hour: end } = daytimeWindow;
+    const daytime = new Set(daytimeHours(daytimeWindow));
+    const night = nighttimeHours(daytimeWindow);
     const analysis = state.result?.analysis ?? null;
     const profile = analysis?.hourly_profile_w ?? null;
     const peak = profile ? Math.max(...profile) : 0;

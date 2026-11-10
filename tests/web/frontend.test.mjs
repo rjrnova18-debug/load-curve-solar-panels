@@ -1,8 +1,10 @@
 // Unit tests for the pure frontend modules. Run with: node --test "tests/web/*.test.mjs"
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
 import { parseErrorBody } from "../../src/loadcurve/web/js/api.js";
+import { daytimeHours, isDaytime, nighttimeHours } from "../../src/loadcurve/web/js/daytime.js";
 import { messageKey } from "../../src/loadcurve/web/js/errors.js";
 import { formatEnergy, formatHour, formatPercent, formatPower } from "../../src/loadcurve/web/js/format.js";
 import { pickLanguage, translate } from "../../src/loadcurve/web/js/i18n.js";
@@ -140,3 +142,20 @@ test("files that are not study files are rejected with a code", () => {
     "study_file_newer",
   );
 });
+
+// ---------- Daytime window (shared cases with the Python DaytimeWindow tests) ----------
+
+const DAYTIME_CASES = JSON.parse(
+  readFileSync(new URL("../fixtures/daytime_cases.json", import.meta.url), "utf-8"),
+).cases;
+
+for (const { start, end, daytime, nighttime } of DAYTIME_CASES) {
+  test(`daytime window ${start}-${end} agrees with the Python domain`, () => {
+    const window = { start_hour: start, end_hour: end };
+    assert.deepEqual(daytimeHours(window), daytime);
+    assert.deepEqual(nighttimeHours(window), nighttime);
+    for (let hour = 0; hour < 24; hour += 1) {
+      assert.equal(isDaytime(window, hour), daytime.includes(hour), `hour ${hour}`);
+    }
+  });
+}
