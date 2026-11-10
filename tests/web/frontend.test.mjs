@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
-import { parseErrorBody } from "../../src/loadcurve/web/js/api.js";
+import { keepResultInSync } from "../../src/loadcurve/web/js/analysisSync.js";
+import { ApiError, parseErrorBody } from "../../src/loadcurve/web/js/api.js";
 import { daytimeHours, isDaytime, nighttimeHours } from "../../src/loadcurve/web/js/daytime.js";
 import { messageKey } from "../../src/loadcurve/web/js/errors.js";
 import { expressionMathML, stepMathML, symbolsUsed } from "../../src/loadcurve/web/js/formula.js";
@@ -213,3 +214,94 @@ test("the legend lists each symbol once, in reading order", () => {
     ["daytime_energy|", "nighttime_energy|", "battery_efficiency|", "peak_sun_hours|year", "performance_ratio|"],
   );
 });
+
+// ---------- analysisSync ----------
+
+/** A fake analyse whose answers the test releases one by one. */
+function fakeAnalyse() {
+  const calls = [];
+  const analyse = (study) =>
+    new Promise((resolve, reject) => calls.push({ study, resolve, reject }));
+  return { analyse, calls };
+}
+
+function studyWithLoads(count) {
+  const study = emptyStudy();
+  const load = { name: "Fridge", rated_power_w: 350, usage_factor: 0.4, schedule: Array(24).fill(1) };
+  study.load_table.loads = Array.from({ length: count }, (_, i) => ({ ...load, name: `Load ${i}` }));
+  return study;
+}
+
+const settle = () => new Promise((resolve) => setImmediate(resolve));
+
+function syncedStore(t) {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const store = createStore();
+  const fake = fakeAnalyse();
+  keepResultInSync(store, fake.analyse, 300);
+  return { store, ...fake };
+}
+
+test("analysis waits for the delay and sends one request for a burst of changes", (t) => {
+  const { store, calls } = syncedStore(t);
+  store.update({ study: studyWithLoads(1) });
+  t.mock.timers.tick(200);
+  store.update({ study: studyWithLoads(2) });
+  t.mock.timers.tick(299);
+  assert.equal(calls.length, 0);
+  t.mock.timers.tick(1);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].study.load_table.loads.length, 2);
+  assert.equal(store.get().status, "loading");
+});
+
+test("analysis ignores changes that leave the Study untouched", (t) => {
+  const { store, calls } = syncedStore(t);
+  store.update({ study: studyWithLoads(1) });
+  t.mock.timers.tick(300);
+  store.update({ status: "idle" }); // e.g. a language change re-rendering the page
+  t.mock.timers.tick(300);
+  assert.equal(calls.length, 1);
+});
+
+test("analysis stores the answer and drops an older one that arrives late", async (t) => {
+  const { store, calls } = syncedStore(t);
+  store.update({ study: studyWithLoads(1) });
+  t.mock.timers.tick(300);
+  store.update({ study: studyWithLoads(2) });
+  t.mock.timers.tick(300);
+  calls[1].resolve({ answer: "new" });
+  await settle();
+  calls[0].resolve({ answer: "old" });
+  await settle();
+  assert.deepEqual(store.get().result, { answer: "new" });
+  assert.equal(store.get().status, "idle");
+});
+
+test("analysis drops an answer to a Study that has since been emptied", async (t) => {
+  const { store, calls } = syncedStore(t);
+  store.update({ study: studyWithLoads(1) });
+  t.mock.timers.tick(300);
+  store.update({ study: emptyStudy() });
+  calls[0].resolve({ answer: "stale" });
+  await settle();
+  assert.equal(store.get().result, null);
+  assert.equal(store.get().status, "idle");
+});
+
+test("analysis errors keep their code; anything else becomes generic", async (t) => {
+  const { store, calls } = syncedStore(t);
+  store.update({ study: studyWithLoads(1) });
+  t.mock.timers.tick(300);
+  calls[0].reject(new ApiError("invalid_study"));
+  await settle();
+  assert.equal(store.get().status, "error");
+  assert.equal(store.get().error.code, "invalid_study");
+
+  store.update({ study: studyWithLoads(2) });
+  t.mock.timers.tick(300);
+  calls[1].reject(new TypeError("Failed to fetch"));
+  await settle();
+  assert.equal(store.get().error.code, "generic");
+});
+

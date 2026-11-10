@@ -1,6 +1,7 @@
-import { analyseStudy, ApiError, sampleLoads } from "./api.js";
+import { keepResultInSync } from "./analysisSync.js";
+import { analyseStudy, sampleLoads } from "./api.js";
 import { language, pickLanguage, savedLanguage, setLanguage, t } from "./i18n.js";
-import { createStore, isAnalysable } from "./state.js";
+import { createStore } from "./state.js";
 import { initTheme } from "./theme.js";
 import { createHero } from "./views/hero.js";
 import { createLoadTable } from "./views/loadTable.js";
@@ -13,38 +14,6 @@ import { createSystems } from "./views/systems.js";
 const ANALYSIS_DELAY_MS = 300;
 
 const store = createStore();
-
-/**
- * Keep the result in step with the Study: every change to the Study schedules one
- * analysis request; a newer change cancels the pending one, and an answer to an
- * older request is ignored.
- */
-function runAnalysisOnChange() {
-  let lastStudy = null;
-  let timer = null;
-  let latestRequest = 0;
-
-  store.subscribe((state) => {
-    if (state.study === lastStudy) return;
-    lastStudy = state.study;
-    clearTimeout(timer);
-    if (!isAnalysable(state.study)) {
-      store.update({ result: null, status: "idle", error: null });
-      return;
-    }
-    timer = setTimeout(async () => {
-      const request = ++latestRequest;
-      store.update({ status: "loading" });
-      try {
-        const result = await analyseStudy(state.study);
-        if (request === latestRequest) store.update({ result, status: "idle", error: null });
-      } catch (error) {
-        if (request !== latestRequest) return;
-        store.update({ status: "error", error: error instanceof ApiError ? error : new ApiError("generic") });
-      }
-    }, ANALYSIS_DELAY_MS);
-  });
-}
 
 function setLoads(loads) {
   store.update((state) => ({
@@ -115,7 +84,7 @@ async function start() {
     systems.render(state);
     studyActions.render(state);
   });
-  runAnalysisOnChange();
+  keepResultInSync(store, analyseStudy, ANALYSIS_DELAY_MS);
   store.update({}); // first paint
 }
 
