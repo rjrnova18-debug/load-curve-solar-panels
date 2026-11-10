@@ -13,7 +13,7 @@ It is a full rewrite of my earlier Streamlit prototype, [Herramienta-Cuadro-de-C
 - **Load table editor**: each piece of equipment with its rated power, a usage factor (a fridge compressor runs about 40% of each hour) and the hours it is on, painted by dragging across a 24-hour grid. Import and export CSV or Excel, including the old Spanish template; invalid rows are listed with their row and column instead of failing the whole file.
 - **Consumption analysis**: hourly profile, load duration curve, peak/base power and load factor for the whole day, daytime and night-time, monthly and yearly energy with seasonal multipliers, and a load × hour heatmap.
 - **Solar resource**: the twelve monthly peak sun hours of any location from [PVGIS](https://joint-research-centre.ec.europa.eu/photovoltaic-geographical-information-system-pvgis_en) (EU Joint Research Centre), with the optimal panel tilt, or typed by hand.
-- **System sizing**: on-grid, hybrid and off-grid systems side by side (panels, battery capacity, inverter), with **every formula shown with your own numbers** and editable assumptions.
+- **System sizing**: on-grid, hybrid and off-grid systems side by side (panels, battery capacity, inverter), with editable assumptions and **every formula drawn as a real fraction, first with symbols and then with your own numbers**. The Excel report repeats them in a Calculations sheet.
 - **Your work stays yours**: save the whole study as a JSON file and open it later, download an Excel report, or print a clean A4 report. Nothing is stored on the server.
 - **English and Spanish**, light and dark themes, keyboard friendly, colour-blind-safe day/night colours, and reduced motion respected.
 
@@ -94,6 +94,7 @@ Errors carry stable codes that the frontend translates: validation errors use Fa
 
 - **Stateless**: no database or accounts. The browser holds the study; files keep it.
 - **One place for each rule**: the domain types are Pydantic models, so the same validation applies to JSON requests and to spreadsheet rows.
+- **The sizing explains itself**: each result comes with its calculation as a small expression tree, and the number is obtained by evaluating that tree. The browser draws the trees as MathML and the report as text, so the formula shown is always the one that was used.
 - **No frontend build**: plain JavaScript modules and one vendored library (Chart.js, checked against its npm integrity hash). A single store and a `render(state)` per view replace a framework.
 
 ## What I learned
@@ -103,6 +104,8 @@ Errors carry stable codes that the frontend translates: validation errors use Fa
 - **Validation that serves the user.** Pydantic error types become codes, codes become messages in two languages, and a spreadsheet with two bad rows still imports the good ones.
 - **Real-world spreadsheets with pandas**: `;` separators, decimal commas, Windows encodings, numeric headers and blank cells.
 - **Wrapping an external API behind an adapter**, injecting the HTTP client and testing timeouts, sea locations and broken answers without touching the network.
+- **Explanations that cannot drift from the maths**: the first version of the formula panel rebuilt the numbers with its own arithmetic. Moving the formulas into the domain as expression trees, and computing the results from them, made the explanation true by construction and revealed an input it had been hiding (the seasonal multiplier in the inverter size).
+- **Debugging a third-party API by measuring it**: "PVGIS is not answering" turned out to be three different failures (location-specific server errors, dropped connections, a request that hung for ten minutes), each now handled on its own terms.
 - **Floating-point ties**: twelve identical months differed by about 1e-15, enough to make April "more critical" than January. Comparing rounded values fixed it.
 - **A frontend without a framework**: one source of truth and render functions, accessible colour contrast (WCAG AA, checked with a script), reduced motion, keyboard use, and fixing layout bugs found by automated screenshots.
 
